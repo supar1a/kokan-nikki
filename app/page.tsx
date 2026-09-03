@@ -42,6 +42,11 @@ export default async function NotebooksPage() {
         <PaperLink href="/new" className="masthead-link" voice="rustle">
           つくる・入る
         </PaperLink>
+        {user.passKey ? (
+          <PaperLink href="/modoriguchi" className="masthead-link" voice="rustle">
+            戻り口
+          </PaperLink>
+        ) : null}
         <form action={signOutAction}>
           <button type="submit" className="btn btn-quiet" style={{ fontSize: "0.72rem" }}>
             出る

@@ -9,6 +9,14 @@ export const googleEnabled = Boolean(
   process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET,
 );
 
+/**
+ * メールで入る道を出してよいか。
+ * 本番で送る手立て（RESEND_API_KEY）が無いのに出すと、送ったつもりで
+ * 誰も入れない行き止まりになる。開発中はリンクが端末に出るので、常に出す。
+ */
+export const mailEnabled =
+  process.env.NODE_ENV !== "production" || Boolean(process.env.RESEND_API_KEY);
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   // セッションは DB の表で持つ（メールのリンクを使うので、これが要る）

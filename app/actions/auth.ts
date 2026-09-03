@@ -1,12 +1,11 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { AuthError } from "next-auth";
-import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { signIn, signOut } from "@/auth";
 import { prisma } from "@/lib/db";
-import { requireSignedIn } from "@/lib/auth";
+import { newPassKey, requireSignedIn, startSession } from "@/lib/auth";
 
 export type FormState = { error?: string } | null;
 
@@ -68,18 +67,35 @@ export async function debugSignInAction(formData: FormData) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new Error("その人はいません。");
 
-  const sessionToken = randomUUID();
-  const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-  await prisma.session.create({ data: { sessionToken, userId: user.id, expires } });
-
-  const store = await cookies();
-  // 本番は __Secure- が付くが、ここは開発中しか通らない
-  store.set("authjs.session-token", sessionToken, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    expires,
-  });
-
+  await startSession(user.id);
   redirect(user.name ? "/" : "/namae");
+}
+
+/**
+ * 名前を入れるだけで始める。
+ *
+ * メールも外の名乗りも使わない代わりに、次に戻ってくるための「戻り口」を一本だけ渡す。
+ * その URL を知っている人が、その人ということになる。
+ */
+export async function startWithNameAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const name = String(formData.get("name") ?? "").trim();
+  if (name.length < 1 || name.length > 24) {
+    return { error: "名前は1〜24字で入れてください。" };
+  }
+
+  const user = await prisma.user.create({ data: { name, passKey: newPassKey() } });
+  await startSession(user.id);
+  redirect("/modoriguchi?hajimete=1");
+}
+
+/** 戻り口を作り直す。前の URL はその場で使えなくなる。 */
+export async function renewPassKeyAction() {
+  const user = await requireSignedIn();
+  if (!user.passKey) return;
+
+  await prisma.user.update({ where: { id: user.id }, data: { passKey: newPassKey() } });
+  revalidatePath("/modoriguchi");
 }

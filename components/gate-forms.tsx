@@ -25,6 +25,44 @@ function GoogleMark() {
   );
 }
 
+/** 名前を入れるだけで始める。いちばん手前に置く入口。 */
+export function StartGate({
+  action,
+}: {
+  action: (prev: FormState, formData: FormData) => Promise<FormState>;
+}) {
+  const [state, formAction, pending] = useActionState(action, null);
+  const { play } = useSound();
+
+  return (
+    <form action={formAction} className="gate-block">
+      <label className="field">
+        <span className="field-label">名前</span>
+        <input
+          name="name"
+          className="input"
+          maxLength={24}
+          required
+          autoFocus
+          autoComplete="nickname"
+          placeholder="ノートのなかで呼ばれる名"
+        />
+      </label>
+
+      {state?.error ? <p className="notice">{state.error}</p> : null}
+
+      <button
+        type="submit"
+        className="btn btn-ink gate-wide"
+        disabled={pending}
+        onClick={() => play("ink")}
+      >
+        {pending ? "はじめています…" : "はじめる"}
+      </button>
+    </form>
+  );
+}
+
 export function GoogleGate({ action }: { action: () => Promise<void> }) {
   const { play } = useSound();
 
@@ -70,7 +108,7 @@ export function MailGate({
 
       <button
         type="submit"
-        className="btn btn-ink gate-wide"
+        className="btn gate-wide"
         disabled={pending}
         onClick={() => play("rustle")}
       >

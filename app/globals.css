@@ -338,8 +338,14 @@ body::after {
   transition: border-color var(--quick) var(--ease);
 }
 
+/* 枠で囲まず、罫が濃くなることで焦点を示す */
+.input:focus-visible {
+  outline: none;
+}
+
 .input:focus {
-  border-bottom-color: var(--sumi-soft);
+  border-bottom-color: var(--sumi);
+  background-color: rgba(255, 253, 246, 0.55);
 }
 
 .input::placeholder {
@@ -1389,4 +1395,26 @@ a {
 
 .compose-count {
   margin-left: 1.2rem;
+}
+
+/* --------------------------------------------------------------------------
+   戻り口 — 名前だけで始めた人の、次に来るときの URL
+   -------------------------------------------------------------------------- */
+
+.returnlink-url {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.78rem;
+  line-height: 1.9;
+  letter-spacing: 0.02em;
+  color: var(--sumi);
+  background: rgba(255, 253, 246, 0.66);
+  border: 1px solid var(--rule);
+  border-radius: 1px;
+  padding: 0.85em 1em;
+  word-break: break-all;
+}
+
+.gate-form strong {
+  font-weight: 600;
+  color: var(--shu);
 }

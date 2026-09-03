@@ -1,20 +1,27 @@
 import { redirect } from "next/navigation";
-import { googleEnabled } from "@/auth";
+import { googleEnabled, mailEnabled } from "@/auth";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
-import { debugSignInAction, googleSignInAction, mailSignInAction } from "@/app/actions/auth";
-import { DebugGate, GoogleGate, MailGate } from "@/components/gate-forms";
+import {
+  debugSignInAction,
+  googleSignInAction,
+  mailSignInAction,
+  startWithNameAction,
+} from "@/app/actions/auth";
+import { DebugGate, GoogleGate, MailGate, StartGate } from "@/components/gate-forms";
 import { GateMark } from "@/components/gate-mark";
 
-export const metadata = { title: "ひらく — 交換日記" };
+export const metadata = { title: "はじめる — 交換日記" };
 
 const isDev = process.env.NODE_ENV !== "production";
 
-/** Auth.js から戻ってくる合図を、こちらの言葉に置き換える */
+/** Auth.js などから戻ってくる合図を、こちらの言葉に置き換える */
 function troubleOf(code: string | undefined) {
   switch (code) {
     case undefined:
       return null;
+    case "Modoriguchi":
+      return "その戻り口は見つかりませんでした。URL を確かめてください。";
     case "Verification":
       return "そのリンクは期限が切れているか、もう使われています。もう一度どうぞ。";
     case "OAuthAccountNotLinked":
@@ -37,6 +44,7 @@ export default async function LoginPage({
 
   const { error } = await searchParams;
   const trouble = troubleOf(error);
+  const hasOtherDoors = googleEnabled || mailEnabled;
 
   const people = isDev
     ? await prisma.user.findMany({
@@ -51,14 +59,25 @@ export default async function LoginPage({
       <div className="gate-inner fade-in">
         <GateMark />
         <div className="gate-form">
-          <p className="gate-heading">戸を叩く</p>
+          <p className="gate-heading">はじめる</p>
 
           {trouble ? <p className="notice">{trouble}</p> : null}
 
-          {googleEnabled ? <GoogleGate action={googleSignInAction} /> : null}
-          <MailGate action={mailSignInAction} showDivider={googleEnabled} />
+          <StartGate action={startWithNameAction} />
 
-          <p className="leaf-lede">はじめての人も、この戸から入れます。</p>
+          <p className="leaf-lede">
+            名前だけで始められます。
+            <br />
+            前に来たことがある方は、そのとき控えた「戻り口」の URL からどうぞ。
+          </p>
+
+          {hasOtherDoors ? (
+            <>
+              <p className="gate-divider">ほかの入り方</p>
+              {googleEnabled ? <GoogleGate action={googleSignInAction} /> : null}
+              {mailEnabled ? <MailGate action={mailSignInAction} showDivider={false} /> : null}
+            </>
+          ) : null}
 
           {isDev ? <DebugGate people={people} action={debugSignInAction} /> : null}
         </div>
