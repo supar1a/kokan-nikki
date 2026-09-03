@@ -2,14 +2,14 @@
 
 import { useActionState, useRef, useState } from "react";
 import { useSound } from "./sound-provider";
-import type { FormState } from "@/app/actions/pages";
+import type { FormState } from "@/app/actions/slips";
 
 type Props = {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   hidden: Record<string, string>;
   defaultBody?: string;
-  submitLabel: string;
-  note: string;
+  /** すでに公開しているものを編集しているとき */
+  published?: boolean;
   cancel?: React.ReactNode;
 };
 
@@ -17,8 +17,7 @@ export function Composer({
   action,
   hidden,
   defaultBody = "",
-  submitLabel,
-  note,
+  published = false,
   cancel,
 }: Props) {
   const [state, formAction, pending] = useActionState(action, null);
@@ -60,16 +59,28 @@ export function Composer({
       <div className="compose-foot">
         <button
           type="submit"
+          name="intent"
+          value="publish"
           className="btn btn-ink"
           disabled={pending}
           onClick={() => play("ink")}
         >
-          {submitLabel}
+          {published ? "保存する" : "投稿する"}
+        </button>
+
+        <button
+          type="submit"
+          name="intent"
+          value="draft"
+          className="btn"
+          disabled={pending}
+          onClick={() => play("rustle")}
+        >
+          下書きに保存
         </button>
 
         {cancel}
 
-        <span className="compose-note">{note}</span>
         <span className="compose-count">{count > 0 ? `${count}字` : "　"}</span>
       </div>
     </form>

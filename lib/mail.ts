@@ -14,7 +14,7 @@ import type { EmailConfig } from "next-auth/providers/email";
  */
 
 const MAILBOX = path.join(process.cwd(), ".mail");
-const FROM = process.env.MAIL_FROM ?? "交換日記 <onboarding@resend.dev>";
+const FROM = process.env.MAIL_FROM ?? "短冊 <onboarding@resend.dev>";
 const LINK_MINUTES = 15;
 
 async function deliver(to: string, url: string, expires: Date) {
@@ -35,7 +35,7 @@ async function sendWithResend(to: string, url: string) {
     body: JSON.stringify({
       from: FROM,
       to,
-      subject: "交換日記にログイン",
+      subject: "短冊にログイン",
       text: [
         "下のリンクをひらくと、そのまま入れます。",
         "",
@@ -58,7 +58,7 @@ async function writeToTerminal(to: string, url: string, expires: Date) {
   console.log(
     [
       "",
-      "  ┌─ 交換日記 ── ログイン用のリンク ────────────────",
+      "  ┌─ 短冊 ── ログイン用のリンク ────────────────",
       `  │ 宛先　${to}`,
       `  │ 期限　${until} まで（${LINK_MINUTES}分）`,
       "  │",

@@ -4,7 +4,7 @@ import { setNameAction } from "@/app/actions/auth";
 import { NameGate } from "@/components/gate-forms";
 import { GateMark } from "@/components/gate-mark";
 
-export const metadata = { title: "名を決める — 交換日記" };
+export const metadata = { title: "名を決める — 短冊" };
 
 export default async function NamePage() {
   const user = await requireSignedIn();

@@ -2,24 +2,30 @@
 
 import { useActionState } from "react";
 import { useSound } from "./sound-provider";
-import type { FormState } from "@/app/actions/notebooks";
+import type { FormState } from "@/app/actions/places";
 
 type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 
-export function CreateNotebookForm({ action }: { action: Action }) {
+export function CreatePlaceForm({
+  action,
+  suggestion,
+}: {
+  action: Action;
+  suggestion: string;
+}) {
   const [state, formAction, pending] = useActionState(action, null);
   const { play } = useSound();
 
   return (
     <form action={formAction} className="leaf-section">
       <label className="field">
-        <span className="field-label">ノートの名前</span>
+        <span className="field-label">グループ名</span>
         <input
           name="name"
           className="input"
           maxLength={32}
           required
-          placeholder="たとえば「三人のノート」"
+          placeholder="たとえば「三人のところ」"
         />
       </label>
 
@@ -29,8 +35,24 @@ export function CreateNotebookForm({ action }: { action: Action }) {
           name="description"
           className="input"
           maxLength={120}
-          placeholder="このノートで書くこと"
+          placeholder="このグループについて"
         />
+      </label>
+
+      <label className="field">
+        <span className="field-label">合言葉</span>
+        <input
+          name="passphrase"
+          className="input"
+          maxLength={32}
+          required
+          defaultValue={suggestion}
+          spellCheck={false}
+          autoCapitalize="none"
+        />
+        <span className="field-note">
+          これを伝えた人だけが入れます。口で言える言葉にしておくと渡しやすい。
+        </span>
       </label>
 
       {state?.error ? <p className="notice">{state.error}</p> : null}
@@ -42,29 +64,28 @@ export function CreateNotebookForm({ action }: { action: Action }) {
           disabled={pending}
           onClick={() => play("ink")}
         >
-          ノートをつくる
+          作成する
         </button>
-        <span className="leaf-lede">つくった人が、最初にノートを持ちます。</span>
       </div>
     </form>
   );
 }
 
-export function JoinNotebookForm({ action }: { action: Action }) {
+export function JoinPlaceForm({ action }: { action: Action }) {
   const [state, formAction, pending] = useActionState(action, null);
   const { play } = useSound();
 
   return (
     <form action={formAction} className="leaf-section">
       <label className="field">
-        <span className="field-label">招待コード</span>
+        <span className="field-label">合言葉</span>
         <input
-          name="code"
+          name="passphrase"
           className="input"
           required
           spellCheck={false}
           autoCapitalize="none"
-          placeholder="kmp4-t7xz"
+          placeholder="あかいとり"
         />
       </label>
 
@@ -77,11 +98,8 @@ export function JoinNotebookForm({ action }: { action: Action }) {
           disabled={pending}
           onClick={() => play("turn")}
         >
-          入る
+          参加する
         </button>
-        <span className="leaf-lede">
-          回る順のいちばん後ろに入ります。中身は、ノートが回ってきたときに読めます。
-        </span>
       </div>
     </form>
   );

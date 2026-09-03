@@ -4,7 +4,7 @@ import { PaperLink } from "@/components/paper-link";
 import { GateMark } from "@/components/gate-mark";
 import { ReturnLink } from "@/components/return-link";
 
-export const metadata = { title: "戻り口 — 交換日記" };
+export const metadata = { title: "戻り口 — 短冊" };
 
 export default async function ReturnGatePage({
   searchParams,

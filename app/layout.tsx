@@ -3,8 +3,8 @@ import "./globals.css";
 import { SoundProvider } from "@/components/sound-provider";
 
 export const metadata: Metadata = {
-  title: "交換日記",
-  description: "一冊のノートを、少人数で順番に回す。",
+  title: "短冊",
+  description: "仲間うちだけの、縦書きの書き散らし。",
 };
 
 export const viewport = {

@@ -1,0 +1,33 @@
+import { notFound } from "next/navigation";
+import { requireReadableSlip } from "@/lib/guards";
+import { saveSlipAction } from "@/app/actions/slips";
+import { Masthead } from "@/components/masthead";
+import { PaperLink } from "@/components/paper-link";
+import { Composer } from "@/components/composer";
+
+export const metadata = { title: "編集 — 短冊" };
+
+export default async function EditSlipPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const { slip, isAuthor } = await requireReadableSlip(id);
+  if (!isAuthor) notFound();
+
+  return (
+    <div className="app">
+      <Masthead sub={slip.place.name}>
+        <PaperLink href={`/s/${slip.id}`} className="masthead-link">
+          やめる
+        </PaperLink>
+      </Masthead>
+
+      <div className="stage fade-in">
+        <Composer
+          action={saveSlipAction}
+          hidden={{ slipId: slip.id }}
+          defaultBody={slip.body}
+          published={slip.published}
+        />
+      </div>
+    </div>
+  );
+}

@@ -1,15 +1,15 @@
 export function GateMark() {
   return (
     <div className="gate-mark">
-      <h1 className="gate-mark-title">交換日記</h1>
+      <h1 className="gate-mark-title">短冊</h1>
       <p className="gate-mark-note">
-        一冊のノートを、
+        仲間うちだけの、
         <br />
-        少人数で順番に回す。
+        縦書きの書き散らし。
         <br />
-        持っている人だけが書き、
+        返事も、いいねも、
         <br />
-        渡したとき、皆が読む。
+        数字もない。
       </p>
     </div>
   );

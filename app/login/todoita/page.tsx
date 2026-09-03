@@ -1,7 +1,7 @@
 import { PaperLink } from "@/components/paper-link";
 import { GateMark } from "@/components/gate-mark";
 
-export const metadata = { title: "文を送りました — 交換日記" };
+export const metadata = { title: "文を送りました — 短冊" };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

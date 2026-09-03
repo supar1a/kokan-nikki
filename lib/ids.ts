@@ -10,7 +10,25 @@ export function shortId(length = 10) {
   return out;
 }
 
-/** 招待コード（口頭でも渡せる形）: kmp4-t7xz */
-export function inviteCode() {
-  return `${shortId(4)}-${shortId(4)}`;
+// 合言葉の下敷き。口に出して言える、覚えていられる言葉であること。
+const FIRST = [
+  "あかい", "あおい", "しろい", "くろい", "みどりの", "きいろい",
+  "ちいさな", "おおきな", "しずかな", "あたたかい", "つめたい", "とおい",
+  "あさの", "よるの", "ゆうがたの", "まふゆの", "まなつの", "あめの",
+];
+const SECOND = [
+  "とり", "つき", "かわ", "もり", "うみ", "やま",
+  "ねこ", "こま", "かさ", "ふね", "まど", "こえ",
+  "たより", "みち", "ひかり", "かぜ", "ゆき", "はな",
+];
+
+/** 「あかいとり」のような、言って渡せる合言葉をひとつ見繕う。 */
+export function suggestPassphrase() {
+  const pick = <T,>(list: T[]) => list[randomBytes(1)[0] % list.length];
+  return `${pick(FIRST)}${pick(SECOND)}`;
+}
+
+/** 合言葉の照合は、英字の大小だけ吸収する。 */
+export function normalizePassphrase(value: string) {
+  return value.trim().toLowerCase();
 }

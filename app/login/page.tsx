@@ -11,7 +11,7 @@ import {
 import { DebugGate, GoogleGate, MailGate, StartGate } from "@/components/gate-forms";
 import { GateMark } from "@/components/gate-mark";
 
-export const metadata = { title: "はじめる — 交換日記" };
+export const metadata = { title: "はじめる — 短冊" };
 
 const isDev = process.env.NODE_ENV !== "production";
 

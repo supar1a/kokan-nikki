@@ -1,35 +1,35 @@
 import { requireUser } from "@/lib/auth";
-import { createNotebookAction, joinNotebookAction } from "@/app/actions/notebooks";
+import { suggestPassphrase } from "@/lib/ids";
+import { createPlaceAction, joinPlaceAction } from "@/app/actions/places";
 import { Masthead } from "@/components/masthead";
 import { PaperLink } from "@/components/paper-link";
-import { CreateNotebookForm, JoinNotebookForm } from "@/components/notebook-forms";
+import { CreatePlaceForm, JoinPlaceForm } from "@/components/place-forms";
 
-export const metadata = { title: "ノートをつくる — 交換日記" };
+export const metadata = { title: "グループを作る — 短冊" };
 
-export default async function NewNotebookPage() {
+export default async function NewPlacePage() {
   await requireUser();
 
   return (
     <>
       <Masthead>
         <PaperLink href="/" className="masthead-link">
-          ノート一覧
+          グループ
         </PaperLink>
       </Masthead>
 
       <main className="leaf fade-in">
         <section className="leaf-section">
-          <h1 className="leaf-heading">ノートをつくる</h1>
+          <h1 className="leaf-heading">グループを作る</h1>
           <p className="leaf-lede">
-            一冊のノートを、仲間うちで順番に回します。ノートはいつも誰か一人の手元にあり、
-            持っている人だけが書けます。書いた頁は、次の人に渡したときに封じられ、そこではじめて皆が読めます。
+            合言葉を知っている人だけが入れます。中に書いたものは、そのメンバーだけが読みます。
           </p>
-          <CreateNotebookForm action={createNotebookAction} />
+          <CreatePlaceForm action={createPlaceAction} suggestion={suggestPassphrase()} />
         </section>
 
         <section className="leaf-section">
-          <h1 className="leaf-heading">招待コードで入る</h1>
-          <JoinNotebookForm action={joinNotebookAction} />
+          <h1 className="leaf-heading">合言葉で参加する</h1>
+          <JoinPlaceForm action={joinPlaceAction} />
         </section>
       </main>
     </>
