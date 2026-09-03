@@ -51,9 +51,13 @@
 ## 動かす
 
 ```sh
+brew install postgresql@17                                   # まだ無ければ
+pg_ctl -D /opt/homebrew/var/postgresql@17 start              # 起こす
+createdb kokan_nikki
+
 npm install
-cp .env.example .env        # AUTH_SECRET を埋める（下記）
-npx prisma migrate dev      # 帳面（SQLite）をつくる
+cp .env.example .env        # DATABASE_URL と AUTH_SECRET を埋める（下記）
+npx prisma migrate dev      # 表をつくる
 npm run seed                # 手ざわりを見るための種データ（任意）
 npm run dev
 ```
@@ -155,3 +159,25 @@ lib/sound.ts       紙の音の合成と、消音の状態
 app/actions/       server actions（auth / notebooks / pages）
 components/        見出し・書く場・渡す・戸口・音まわり
 ```
+
+## 公開する（Vercel）
+
+GitHub に push すると、Vercel が拾って自動で公開しなおす。
+
+必要な環境変数は二種類だけ:
+
+| 名前 | どこから |
+|---|---|
+| `DATABASE_URL` / `DATABASE_URL_UNPOOLED` | Vercel の Storage で Neon（Postgres）を繋ぐと、自動で入る |
+| `AUTH_SECRET` | 自分で作って入れる（上のコマンド） |
+
+`npm run build` が `prisma migrate deploy` を先に走らせるので、**表の移行は公開のたびに自動で当たる**。
+
+Google ではじめる を本番でも使うなら、承認済みのリダイレクト URI に
+`https://<公開したドメイン>/api/auth/callback/google` を足して、`AUTH_GOOGLE_ID` /
+`AUTH_GOOGLE_SECRET` を Vercel 側にも入れる。
+
+### メールについて
+
+`RESEND_API_KEY` を入れないかぎり、ログイン用のリンクは**サーバーのログに出るだけ**で、
+実際には送られない。つまり自分以外は入れない。人を招くなら Resend の鍵を入れること。

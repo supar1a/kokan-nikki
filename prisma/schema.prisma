@@ -10,10 +10,11 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // 本番（Vercel）では、接続を束ねた URL。
+  // 束ねた（pooled）接続。ふだんの読み書きはこちら。
   url       = env("DATABASE_URL")
-  // 移行を流すときだけ使う、束ねていない URL。
-  directUrl = env("DIRECT_DATABASE_URL")
+  // 束ねていない接続。移行を流すときだけ使う。
+  // この二つの名前は、Vercel の Neon 連携が自動で入れてくれるものに合わせてある。
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 // --- 名乗り（Auth.js の作法に合わせた四つの表） ---
