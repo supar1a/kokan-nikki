@@ -199,6 +199,25 @@ GitHub に push すると、Vercel が拾って自動で公開しなおす。
 
 `npm run build` が `prisma migrate deploy` を先に走らせるので、**表の移行は公開のたびに自動で当たる**。
 
+### 自動で公開されないとき
+
+Vercel の無料プランは、**Git のコミット作者がアカウント所有者と結びつかない場合、
+そのデプロイをブロックする**（GitHub 側に「Deployment was blocked」と出る。
+ビルドの失敗ではない）。手動の Redeploy は通るのに push からだけ動かない、
+という形で現れる。
+
+コミットの作者メールを、GitHub が自分だと認識するものにすれば直る:
+
+```sh
+git config user.email "<あなたのID>+<ユーザー名>@users.noreply.github.com"
+```
+
+いま結びついているかは、これで見られる（`結びついていない` なら、それが原因）:
+
+```sh
+gh api repos/<ユーザー名>/<リポジトリ>/commits/main --jq '.author.login // "結びついていない"'
+```
+
 Google ではじめる を本番でも使うなら、承認済みのリダイレクト URI に
 `https://<公開したドメイン>/api/auth/callback/google` を足して、`AUTH_GOOGLE_ID` /
 `AUTH_GOOGLE_SECRET` を Vercel 側にも入れる。
