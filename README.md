@@ -107,8 +107,18 @@ SMTP を使うなら `npm i nodemailer` して、`mailLink` を `next-auth/provi
 ### Google ではじめる を使えるようにする
 
 1. Google Cloud で「OAuth クライアント ID（ウェブ アプリケーション）」をつくる。
-2. 承認済みのリダイレクト URI に `http://localhost:3000/api/auth/callback/google` を入れる。
-3. `.env` に `AUTH_GOOGLE_ID` と `AUTH_GOOGLE_SECRET` を入れて、開発サーバーを立て直す。
+2. 承認済みのリダイレクト URI に、使う場所のぶんだけ入れる:
+   - `http://localhost:3000/api/auth/callback/google`
+   - `https://<公開したドメイン>/api/auth/callback/google`
+3. `AUTH_GOOGLE_ID` と `AUTH_GOOGLE_SECRET` を入れて、立て直す。
+
+鍵が入っていないうちは、その釦は出ない（メールだけで動く）。
+
+**名乗りの結びつけについて。** 同じメールアドレスなら、メールのリンクで作った名乗りと
+Google の名乗りは同じ人として扱う（`allowDangerousEmailAccountLinking`）。
+これを入れないと、先にメールで入った人が Google で入り直せなくなるため。
+結びつける以上、`signIn` コールバックで **Google 側が確認済みのアドレスかどうか
+（`email_verified`）を必ず見ている**。未確認のまま通すと、他人の名乗りに入り込めてしまう。
 
 ## 画面
 
