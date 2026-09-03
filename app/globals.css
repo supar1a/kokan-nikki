@@ -116,15 +116,8 @@ body::after {
 }
 
 /* 一〜二桁の数字を正立させる（縦中横） */
-.tcy {
-  -webkit-text-combine: horizontal;
-  text-combine-upright: all;
-}
 
 /* 横組みが自然なもの（英数字の入力欄、ID など）に逃がす */
-.yoko {
-  writing-mode: horizontal-tb;
-}
 
 /* --------------------------------------------------------------------------
    骨格
@@ -288,17 +281,6 @@ body::after {
   border-color: #322d26;
 }
 
-.btn-shu {
-  color: var(--shu);
-  border-color: rgba(168, 65, 44, 0.32);
-}
-
-.btn-shu:hover {
-  color: var(--shu);
-  border-color: rgba(168, 65, 44, 0.6);
-  background-color: rgba(168, 65, 44, 0.05);
-}
-
 .btn:disabled {
   opacity: 0.4;
   cursor: default;
@@ -407,10 +389,9 @@ body::after {
 .slip {
   display: flex;
   flex-direction: column;
-  gap: clamp(1.4rem, 2.2vw, 2.4rem);
-  padding-block: 0 clamp(1.6rem, 2.6vw, 2.8rem);
-  margin-block-end: clamp(1.6rem, 2.6vw, 2.8rem);
-  border-block-end: 1px solid var(--rule-soft);
+  gap: clamp(1.2rem, 1.9vw, 2rem);
+  /* 罫は引かない。段落が一字下げで詰まっているぶん、この空きだけで切れて見える。 */
+  margin-block-end: clamp(3.4rem, 5.4vw, 6rem);
 }
 
 .slip-head {
@@ -461,9 +442,6 @@ body::after {
 
 /* 本文は読むためのもの。リンクにしない（選んで引用できるように） */
 .slip-body {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1rem, 1.6vw, 1.8rem);
   font-size: clamp(0.95rem, 1.1vw, 1.04rem);
   letter-spacing: 0.13em;
   line-height: 2.45;
@@ -474,6 +452,7 @@ body::after {
   white-space: pre-line;
   text-indent: 1em;
   max-inline-size: 100%;
+  margin: 0;
 }
 
 /* 下書きの印 */
@@ -488,11 +467,6 @@ body::after {
   border-radius: 1px;
   padding: 0.45em 0.3em;
   line-height: 1.6;
-}
-
-.seal-quiet {
-  color: var(--sumi-faint);
-  border-color: var(--rule);
 }
 
 /* --------------------------------------------------------------------------
@@ -556,9 +530,6 @@ body::after {
 }
 
 .sheet-body {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1.2rem, 2vw, 2.2rem);
   font-size: clamp(0.98rem, 1.15vw, 1.08rem);
   letter-spacing: 0.14em;
   line-height: 2.5;
@@ -568,6 +539,7 @@ body::after {
   max-inline-size: 100%;
   white-space: pre-line;
   text-indent: 1em;
+  margin: 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -592,7 +564,6 @@ body::after {
   gap: clamp(1rem, 2vw, 1.8rem);
 }
 
-.compose-title,
 .compose-body {
   font-family: inherit;
   writing-mode: vertical-rl;
@@ -609,25 +580,6 @@ body::after {
   padding: 0;
 }
 
-.compose-title {
-  flex: 0 0 auto;
-  font-size: clamp(1.2rem, 1.7vw, 1.55rem);
-  font-weight: 500;
-  letter-spacing: 0.24em;
-  line-height: 1.9;
-  width: calc(4em + clamp(0.8rem, 1.6vw, 1.6rem));
-  height: 100%;
-  border-left: 1px solid var(--rule-soft);
-  padding-left: clamp(0.8rem, 1.6vw, 1.6rem);
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-}
-
-.compose-title::-webkit-scrollbar {
-  display: none;
-}
-
 .compose-body {
   flex: 1 1 auto;
   min-width: 0;
@@ -641,19 +593,13 @@ body::after {
   scrollbar-color: rgba(33, 30, 25, 0.16) transparent;
 }
 
-.compose-title::placeholder,
 .compose-body::placeholder {
   color: var(--sumi-ghost);
 }
 
 /* 紙そのものが入力欄なので、枠で囲まない。合図は罫の濃さで返す。 */
-.compose-title:focus-visible,
 .compose-body:focus-visible {
   outline: none;
-}
-
-.compose-shell:focus-within .compose-title {
-  border-left-color: var(--rule);
 }
 
 .compose-foot {
@@ -665,32 +611,7 @@ body::after {
   border-top: 1px solid var(--rule-soft);
 }
 
-.compose-count {
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  color: var(--sumi-ghost);
-  white-space: nowrap;
-}
-
 /* 原稿用紙のうっすらとした罫 */
-.compose-ruled {
-  position: relative;
-}
-
-.compose-ruled::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: repeating-linear-gradient(
-    to left,
-    var(--rule-soft) 0px,
-    var(--rule-soft) 1px,
-    transparent 1px,
-    transparent 2.7em
-  );
-  opacity: 0.7;
-}
 
 /* --------------------------------------------------------------------------
    入口 — 戸口
@@ -973,21 +894,6 @@ a {
     padding: 0.7em 1.1em;
   }
 
-  /* 状態は一行に収める。添え書きは末尾の白紙が引き受ける。 */
-  .stateline {
-    padding-inline: 1.25rem;
-    gap: 0.7rem;
-  }
-
-  .stateline-text {
-    font-size: 0.78rem;
-    letter-spacing: 0.12em;
-    white-space: nowrap;
-  }
-
-  .stateline-hint {
-    display: none;
-  }
 
   .gate-inner {
     flex-direction: column;
@@ -1003,435 +909,7 @@ a {
    いまの状態 — このノートが誰の手元にあるか
    -------------------------------------------------------------------------- */
 
-.stateline {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: clamp(1.1rem, 2.4vh, 1.9rem) var(--gutter);
-  color: var(--sumi-soft);
-  border-bottom: 1px solid var(--rule-soft);
-}
-
-.stateline-mark {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex: 0 0 auto;
-  background: var(--sumi-ghost);
-}
-
 /* 手元にあるときだけ、朱が灯る */
-.stateline-mark-here {
-  background: var(--shu);
-}
-
-.stateline-text {
-  font-size: 0.88rem;
-  letter-spacing: 0.22em;
-}
-
-.stateline-hint {
-  margin-left: auto;
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  color: var(--sumi-faint);
-  white-space: nowrap;
-}
-
-/* --------------------------------------------------------------------------
-   紙のページ（縦スクロールでよい画面）
-   -------------------------------------------------------------------------- */
-
-.leaf {
-  position: relative;
-  z-index: 1;
-  max-width: 44rem;
-  margin: 0 auto;
-  padding: var(--air) var(--gutter) calc(var(--air) * 2);
-  display: flex;
-  flex-direction: column;
-  gap: clamp(2rem, 5vh, 3.5rem);
-}
-
-.leaf-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1.4rem;
-}
-
-.leaf-heading {
-  font-size: 0.82rem;
-  letter-spacing: 0.34em;
-  color: var(--sumi-faint);
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--rule-soft);
-}
-
-.leaf-lede {
-  font-size: 0.86rem;
-  letter-spacing: 0.1em;
-  line-height: 2.2;
-  color: var(--sumi-faint);
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-/* --------------------------------------------------------------------------
-   合鍵 — 縦組みのなかに、横組みの小さな札を置く
-   -------------------------------------------------------------------------- */
-
-.invite {
-  writing-mode: horizontal-tb;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.9rem;
-  width: 13rem;
-}
-
-.invite-actions {
-  display: flex;
-  gap: 0.6rem;
-}
-
-.invite .btn {
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  padding: 0.5em 0.9em;
-}
-
-/* --------------------------------------------------------------------------
-   戸口 — Google と、メールに届くリンク
-   -------------------------------------------------------------------------- */
-
-.gate-block {
-  display: flex;
-  flex-direction: column;
-  gap: 1.4rem;
-}
-
-.gate-wide {
-  width: 100%;
-  padding-block: 0.85em;
-}
-
-.gate-divider {
-  display: flex;
-  align-items: center;
-  gap: 1.1rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.28em;
-  color: var(--sumi-ghost);
-  margin-block-start: 0.2rem;
-}
-
-.gate-divider::before,
-.gate-divider::after {
-  content: "";
-  flex: 1 1 auto;
-  height: 1px;
-  background: var(--rule-soft);
-}
-
-.gate-form .caption {
-  font-size: 0.72rem;
-  line-height: 2.1;
-}
-
-.gate-form .code {
-  font-size: 0.72rem;
-  padding: 0.15em 0.4em;
-  margin-inline: 0.2em;
-}
-
-.gate-sentto {
-  font-size: 0.9rem;
-  letter-spacing: 0.08em;
-  color: var(--sumi);
-  padding-bottom: 0.9rem;
-  border-bottom: 1px solid var(--rule-soft);
-  word-break: break-all;
-}
-
-/* --------------------------------------------------------------------------
-   開発用の抜け道 — 意匠に馴染ませない。仮の貼り紙のように置く。
-   -------------------------------------------------------------------------- */
-
-.debug {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  margin-top: 1.6rem;
-  padding: 1.1rem 1.2rem;
-  border: 1px dashed rgba(168, 65, 44, 0.34);
-  border-radius: 2px;
-  background: rgba(168, 65, 44, 0.035);
-}
-
-.debug-label {
-  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
-  font-size: 0.64rem;
-  letter-spacing: 0.24em;
-  color: var(--shu);
-}
-
-.debug-note {
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  line-height: 1.95;
-  color: var(--sumi-faint);
-}
-
-.debug-note .code {
-  font-size: 0.68rem;
-  padding: 0.1em 0.35em;
-  margin-inline: 0.2em;
-}
-
-.debug-people {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.debug-btn {
-  font-size: 0.74rem;
-  letter-spacing: 0.08em;
-  padding: 0.5em 0.9em;
-  color: var(--shu);
-  border-color: rgba(168, 65, 44, 0.3);
-}
-
-.debug-btn:hover {
-  color: var(--shu);
-  border-color: rgba(168, 65, 44, 0.6);
-  background-color: rgba(168, 65, 44, 0.05);
-}
-
-/* --------------------------------------------------------------------------
-   未読の目印 — 前に見たあとに書かれた分との境目。数は出さない。
-   -------------------------------------------------------------------------- */
-
-.unread-mark {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: flex-start;
-  margin-block: clamp(1.1rem, 1.9vw, 2.1rem);
-  padding-block-start: 0.75em; /* 縦組みでは、これが線と字のあいだ */
-  border-block-start: 1px solid rgba(168, 65, 44, 0.42); /* 右端に朱の一本 */
-}
-
-.unread-mark-label {
-  font-size: 0.68rem;
-  letter-spacing: 0.24em;
-  color: var(--shu);
-  white-space: nowrap;
-}
-
-/* --------------------------------------------------------------------------
-   仲間（メンバー）
-   -------------------------------------------------------------------------- */
-
-.roster {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1.6rem, 3vw, 3rem);
-  height: 100%;
-  padding: var(--air) var(--gutter);
-}
-
-.person {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 1.4em;
-  max-block-size: 20rem;
-}
-
-.person-name {
-  font-size: 1.02rem;
-  letter-spacing: 0.2em;
-}
-
-.person-role {
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
-  color: var(--sumi-faint);
-}
-
-/* --------------------------------------------------------------------------
-   細部
-   -------------------------------------------------------------------------- */
-
-a {
-  color: inherit;
-}
-
-::selection {
-  background: rgba(168, 65, 44, 0.16);
-}
-
-:focus-visible {
-  outline: 1px solid var(--sumi-soft);
-  outline-offset: 3px;
-}
-
-.fade-in {
-  animation: fade-in var(--slow) var(--ease) both;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateX(10px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-@media (max-width: 640px) {
-  body {
-    font-size: 15px;
-  }
-
-  .masthead {
-    gap: 0.8rem;
-    padding-inline: 1.25rem;
-  }
-
-  .masthead-title {
-    font-size: 0.95rem;
-    letter-spacing: 0.3em;
-    text-indent: 0.3em;
-  }
-
-  .masthead-sub {
-    display: none;
-  }
-
-  .masthead {
-    /* 送り代のぶんだけ右を詰め、品書き側の余白で埋め戻す */
-    padding-inline-end: 2px;
-  }
-
-  /* 品書きが折り返して崩れるより、指で送れるほうがよい。
-     端を薄めて「まだ続く」ことを示す。 */
-  .masthead-nav {
-    gap: 0.9rem;
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding-inline-end: 18px;
-    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent 100%);
-    mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent 100%);
-  }
-
-  .masthead-nav::-webkit-scrollbar {
-    display: none;
-  }
-
-  .masthead-link,
-  .masthead-nav .btn {
-    font-size: 0.74rem;
-    letter-spacing: 0.1em;
-  }
-
-  .masthead-nav .btn {
-    padding-inline: 0.4em;
-  }
-
-  .compose-foot {
-    flex-wrap: wrap;
-    gap: 0.7rem;
-  }
-
-  .compose-foot .btn {
-    font-size: 0.78rem;
-    letter-spacing: 0.12em;
-    padding: 0.7em 1.1em;
-  }
-
-  /* 状態は一行に収める。添え書きは末尾の白紙が引き受ける。 */
-  .stateline {
-    padding-inline: 1.25rem;
-    gap: 0.7rem;
-  }
-
-  .stateline-text {
-    font-size: 0.78rem;
-    letter-spacing: 0.12em;
-    white-space: nowrap;
-  }
-
-  .stateline-hint {
-    display: none;
-  }
-
-  .gate-inner {
-    flex-direction: column;
-    gap: 2.5rem;
-  }
-
-  .page {
-    max-block-size: 20rem;
-  }
-}
-
-/* --------------------------------------------------------------------------
-   いまの状態 — このノートが誰の手元にあるか
-   -------------------------------------------------------------------------- */
-
-.stateline {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: clamp(1.1rem, 2.4vh, 1.9rem) var(--gutter);
-  color: var(--sumi-soft);
-  border-bottom: 1px solid var(--rule-soft);
-}
-
-.stateline-mark {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex: 0 0 auto;
-  background: var(--sumi-ghost);
-}
-
-/* 手元にあるときだけ、朱が灯る */
-.stateline-mark-here {
-  background: var(--shu);
-}
-
-.stateline-text {
-  font-size: 0.88rem;
-  letter-spacing: 0.22em;
-}
-
-.stateline-hint {
-  margin-left: auto;
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  color: var(--sumi-faint);
-  white-space: nowrap;
-}
 
 /* --------------------------------------------------------------------------
    紙のページ（縦スクロールでよい画面）
@@ -1632,121 +1110,13 @@ a {
    末尾 — 白紙と、次に渡す相手
    -------------------------------------------------------------------------- */
 
-.tail {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(2rem, 3.5vw, 3.6rem);
-  align-items: stretch;
-  margin-block-start: clamp(1.6rem, 2.6vw, 2.8rem);
-}
-
 /* まだ何も書かれていない、次の頁そのものが「書く」の入口 */
-.blankpage {
-  display: flex;
-  flex-direction: row; /* 縦組みでは上から下へ */
-  align-items: flex-start;
-  gap: 1.1rem;
-  inline-size: 100%;
-  block-size: 11rem;
-  padding-block-end: clamp(1.4rem, 2.2vw, 2.2rem);
-  border-block-end: 1px dashed var(--rule);
-  color: var(--sumi-soft);
-  text-decoration: none;
-  transition: color var(--slow) var(--ease), border-color var(--slow) var(--ease);
-}
-
-.blankpage:hover {
-  color: var(--sumi);
-  border-block-end-color: rgba(33, 30, 25, 0.28);
-}
-
-.blankpage-lede {
-  font-size: 0.95rem;
-  letter-spacing: 0.24em;
-}
-
-.blankpage-hint {
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
-  color: var(--sumi-faint);
-  line-height: 2.1;
-}
 
 /* 渡す相手 — 人そのものを並べて、そこから渡す */
-.handoff {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  inline-size: 100%;
-}
-
-.handoff-title {
-  font-size: 0.72rem;
-  letter-spacing: 0.26em;
-  color: var(--sumi-faint);
-}
-
-.handoff-people {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  align-items: flex-start;
-}
-
-.handoff-btn {
-  writing-mode: vertical-rl;
-  font-size: 0.82rem;
-  letter-spacing: 0.16em;
-  padding: 1.1em 0.65em;
-}
-
-.handoff-next {
-  color: var(--shu);
-  border-color: rgba(168, 65, 44, 0.34);
-}
-
-.handoff-next:hover {
-  color: var(--shu);
-  border-color: rgba(168, 65, 44, 0.6);
-  background-color: rgba(168, 65, 44, 0.05);
-}
-
-.waiting {
-  inline-size: 100%;
-  padding-block-start: clamp(1.4rem, 2.2vw, 2.2rem);
-  color: var(--sumi-faint);
-  font-size: 0.8rem;
-  letter-spacing: 0.2em;
-  line-height: 2.2;
-}
 
 /* --------------------------------------------------------------------------
    仲間 — 回る順に並ぶ
    -------------------------------------------------------------------------- */
-
-.person-turn {
-  font-size: 0.66rem;
-  letter-spacing: 0.16em;
-  color: var(--sumi-ghost);
-}
-
-.person-here {
-  font-size: 0.68rem;
-  letter-spacing: 0.16em;
-  color: var(--shu);
-  border: 1px solid rgba(168, 65, 44, 0.35);
-  border-radius: 1px;
-  padding: 0.5em 0.32em;
-  line-height: 1.6;
-}
-
-.compose-note {
-  margin-left: auto;
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  color: var(--sumi-faint);
-  white-space: nowrap;
-}
 
 .compose-count {
   margin-left: 1.2rem;
@@ -1775,7 +1145,7 @@ a {
 }
 
 /* --------------------------------------------------------------------------
-   巻物の端 — 書きはじめる白紙（右端）と、いちばん古いところ（左端）
+   巻物の端 — はじまり（右端）と、次の一枚を書く白紙（左端）
    -------------------------------------------------------------------------- */
 
 .blankpage {
@@ -1785,9 +1155,6 @@ a {
   gap: 1.1rem;
   inline-size: 100%;
   block-size: 9rem;
-  padding-block-end: clamp(1.4rem, 2.2vw, 2.2rem);
-  margin-block-end: clamp(1.6rem, 2.6vw, 2.8rem);
-  border-block-end: 1px dashed var(--rule);
   color: var(--sumi-soft);
   text-decoration: none;
   transition: color var(--slow) var(--ease), border-color var(--slow) var(--ease);
@@ -1814,7 +1181,7 @@ a {
   display: flex;
   align-items: flex-start;
   inline-size: 100%;
-  padding-block-start: clamp(1.4rem, 2.2vw, 2.2rem);
+  margin-block-end: clamp(3.4rem, 5.4vw, 6rem);
   font-size: 0.72rem;
   letter-spacing: 0.24em;
   color: var(--sumi-ghost);

@@ -20,7 +20,7 @@ export async function requirePlace(slug: string) {
 }
 
 /**
- * 読める短冊を、新しい順に。
+ * 読める短冊を、古い順に（縦組みでは右から左へ流れる向き）。
  * 下書きは、書いた本人にだけ見える。
  */
 export async function readableSlips(
@@ -35,7 +35,7 @@ export async function readableSlips(
       OR: [{ published: true }, { authorId: userId }],
     },
     include: { author: AUTHOR },
-    orderBy: { createdAt: "desc" },
+    orderBy: { createdAt: "asc" },
   });
 }
 
