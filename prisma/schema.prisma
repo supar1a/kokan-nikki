@@ -1,0 +1,128 @@
+// 交換日記 — data model
+//
+// 主オブジェクトは「ノート」。一冊のノートを、仲間うちで順番に回す。
+// ノートは常に一人の手元にしかない（holderId）。持っている人だけが書ける。
+// 渡すと、それまでに書いた頁が封じられ（Page.sealedAt）、次の人の手に渡る。
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // 本番（Vercel）では、接続を束ねた URL。
+  url       = env("DATABASE_URL")
+  // 移行を流すときだけ使う、束ねていない URL。
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+// --- 名乗り（Auth.js の作法に合わせた四つの表） ---
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+
+  accounts    Account[]
+  sessions    Session[]
+  memberships Membership[]
+  pages       Page[]
+  holding     Notebook[]   @relation("Holding")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// メールに送るリンクの引換券。一度使えば消える。
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// --- ノートと、頁 ---
+
+model Notebook {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  inviteCode  String   @unique
+  /// いまこのノートを持っている人。ここに居ない人は書けない。
+  holderId    String?
+  createdAt   DateTime @default(now())
+
+  holder      User?        @relation("Holding", fields: [holderId], references: [id], onDelete: SetNull)
+  memberships Membership[]
+  pages       Page[]
+
+  @@index([holderId])
+}
+
+model Membership {
+  id         String   @id @default(cuid())
+  userId     String
+  notebookId String
+  role       String   @default("member") // "owner" | "member"
+  /// 回る順。次の番の人は、この並びで決まる。
+  order      Int      @default(0)
+  /// このノートを最後に手放した時刻。ここまでに封じられた頁を読んでよい。
+  /// 一度も回ってきていない人は null＝まだ何も読めない。
+  heldUntil  DateTime?
+  joinedAt   DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notebook Notebook @relation(fields: [notebookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, notebookId])
+  @@index([notebookId, order])
+}
+
+model Page {
+  id         String    @id @default(cuid())
+  notebookId String
+  authorId   String
+  body       String
+  /// 渡した時に押される。押されるまでは書いた本人だけのもので、直せる。
+  sealedAt   DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  notebook Notebook @relation(fields: [notebookId], references: [id], onDelete: Cascade)
+  author   User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([notebookId, createdAt])
+  @@index([authorId])
+}
