@@ -1,21 +1,67 @@
 import { Fragment } from "react";
-import { requirePlace, readableSlips } from "@/lib/guards";
+import { prisma } from "@/lib/db";
+import { openPlace, readableSlips } from "@/lib/guards";
 import { readingMark } from "@/lib/place";
+import { joinAction } from "@/app/actions/identity";
 import { Masthead } from "@/components/masthead";
 import { PaperLink } from "@/components/paper-link";
 import { SlipColumn } from "@/components/slip-column";
 import { MarkAsRead } from "@/components/mark-as-read";
 import { OpenWhereLeftOff } from "@/components/open-where-left-off";
+import { GateMark } from "@/components/gate-mark";
+import { JoinAsMe, PickMe, StartForm } from "@/components/identity-forms";
 
 const SCROLLER = "scroller";
 const MARK = "unread-mark";
 
 export default async function PlacePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { user, place, membership } = await requirePlace(slug);
+  const { user, place, membership } = await openPlace(slug);
+
+  // ── この URL が招待状。まだ中にいない人には、まず名乗ってもらう。 ──
+  if (!membership) {
+    const members = await prisma.membership.findMany({
+      where: { placeId: place.id },
+      include: { user: { select: { id: true, name: true } } },
+      orderBy: { joinedAt: "asc" },
+    });
+
+    return (
+      <main className="gate">
+        <div className="gate-inner fade-in">
+          <GateMark />
+          <div className="gate-form">
+            <p className="gate-heading">{place.name}</p>
+            {place.description ? <p className="leaf-lede">{place.description}</p> : null}
+
+            {user ? (
+              <JoinAsMe action={joinAction} slug={slug} name={user.name} />
+            ) : (
+              <>
+                <p className="leaf-lede">
+                  このグループに招待されています。
+                  <br />
+                  呼ばれたい名前をひとつ、決めてください。
+                </p>
+                <StartForm
+                  action={joinAction}
+                  label="参加する"
+                  hidden={{ slug }}
+                />
+                <PickMe
+                  slug={slug}
+                  people={members.map((m) => ({ id: m.user.id, name: m.user.name }))}
+                />
+              </>
+            )}
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   // 古い順。縦組みでは、右から左へ流れる向きになる。
-  const slips = await readableSlips(place.id, user.id);
+  const slips = await readableSlips(place.id, user!.id);
   const mark = readingMark(slips, membership.lastReadAt);
 
   return (

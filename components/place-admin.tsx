@@ -9,6 +9,32 @@ import {
 } from "@/app/actions/places";
 import type { FormState } from "@/app/actions/places";
 
+/** 招待 URL。これを渡すことが、そのまま招待になる。 */
+export function InviteUrl({ url }: { url: string }) {
+  const [copied, setCopied] = useState(false);
+  const { play } = useSound();
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(url);
+      play("tick");
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      // クリップボードが使えない環境では、目で読んで写してもらう
+    }
+  }
+
+  return (
+    <div className="invite">
+      <p className="invite-url">{url}</p>
+      <button type="button" className="btn btn-ink" onClick={copy}>
+        {copied ? "コピーしました" : "URL をコピー"}
+      </button>
+    </div>
+  );
+}
+
 export function Passphrase({
   placeId,
   passphrase,
@@ -39,6 +65,7 @@ export function Passphrase({
 
   return (
     <div className="invite">
+      <p className="field-label">合言葉</p>
       <code className="code">{passphrase}</code>
 
       <div className="invite-actions">

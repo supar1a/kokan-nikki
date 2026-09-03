@@ -1,8 +1,8 @@
 // 短冊 — data model
 //
-// 仲間うちだけのグループに、それぞれが短冊を投稿していく。
-// 手番も宛先も返事もない。
-// いいね・既読・閲覧数のたぐいは、表にも裏にも持たない。
+// アカウントはない。ブラウザに残るクッキーが、そのまま「その人」を指す。
+// 名前は最初に一度きいて、それだけ。照合するものが何もないので、
+// なりすましは原理的に防げない。そこは仲間うちであることに委ねている。
 
 generator client {
   provider = "prisma-client-js"
@@ -14,71 +14,37 @@ datasource db {
   directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
-// --- 名乗り ---
-
+/// 名乗り。名前のほかに持つものがない。
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  /// 名前だけで始めた人の「戻り口」。
-  passKey       String?   @unique
-  createdAt     DateTime  @default(now())
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
 
-  accounts    Account[]
   sessions    Session[]
   memberships Membership[]
   slips       Slip[]
 }
 
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-}
-
+/// ブラウザに置いたクッキーの控え。
 model Session {
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
+  token     String   @id
+  userId    String
+  expires   DateTime
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
-model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-// --- 場と、短冊 ---
-
-/// 仲間うちの閉じたグループ。合言葉を知っている人だけが入れる。
+/// 仲間うちの閉じたグループ。この URL を渡された人が入れる。
 model Place {
   id          String   @id @default(cuid())
+  /// 招待 URL の実体。これを知っていることが、そのまま入場券になる。
   slug        String   @unique
   name        String
   description String?
-  /// 合言葉。これを知っている人だけが入れる。作った人が決める。
+  /// 口頭でも渡せるようにした、もうひとつの入口。
   passphrase  String   @unique
   createdAt   DateTime @default(now())
 
@@ -87,14 +53,13 @@ model Place {
 }
 
 model Membership {
-  id       String   @id @default(cuid())
-  userId   String
-  placeId  String
-  role     String   @default("member") // "owner" | "member"
-  /// 前にこのグループを見た時刻。ここより後の短冊に「未読」の目印をつけるためだけに使う。
-  /// 未読の「数」はどこにも出さない。数が出た時点で、読む義務になってしまうので。
+  id         String    @id @default(cuid())
+  userId     String
+  placeId    String
+  role       String    @default("member") // "owner" | "member"
+  /// 前にこのグループを見た時刻。「ここから未読」の目印にだけ使う。数は出さない。
   lastReadAt DateTime?
-  joinedAt   DateTime @default(now())
+  joinedAt   DateTime  @default(now())
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
@@ -103,7 +68,6 @@ model Membership {
   @@index([placeId])
 }
 
-/// 一枚の短冊。
 model Slip {
   id        String   @id @default(cuid())
   placeId   String

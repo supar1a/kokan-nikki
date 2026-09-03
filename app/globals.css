@@ -1221,3 +1221,61 @@ a {
   color: var(--sumi-ghost);
   white-space: nowrap;
 }
+
+/* --------------------------------------------------------------------------
+   名乗り直し — クッキーを失った人が、自分を選び直す
+   -------------------------------------------------------------------------- */
+
+.pickme {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.pickme-people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pickme-people .btn {
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  padding: 0.55em 1em;
+}
+
+.invite-url {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.74rem;
+  line-height: 1.9;
+  color: var(--sumi);
+  background: rgba(255, 253, 246, 0.66);
+  border: 1px solid var(--rule);
+  border-radius: 1px;
+  padding: 0.7em 0.8em;
+  word-break: break-all;
+}
+
+/* 一覧の下、そっと置く合言葉の入口 */
+.undercard {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: clamp(1rem, 2vh, 1.6rem) var(--gutter);
+  border-top: 1px solid var(--rule-soft);
+}
+
+.undercard .gate-block {
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 1rem;
+  width: 100%;
+  max-width: 28rem;
+}
+
+.undercard .field {
+  flex: 1 1 auto;
+}

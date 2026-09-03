@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
+
 import { normalizePassphrase, shortId } from "@/lib/ids";
 
 export type FormState = { error?: string } | null;
@@ -38,28 +39,6 @@ export async function createPlaceAction(
       memberships: { create: { userId: user.id, role: "owner" } },
     },
   });
-
-  revalidatePath("/");
-  redirect(`/b/${place.slug}`);
-}
-
-export async function joinPlaceAction(
-  _prev: FormState,
-  formData: FormData,
-): Promise<FormState> {
-  const user = await requireUser();
-  const passphrase = normalizePassphrase(String(formData.get("passphrase") ?? ""));
-  if (!passphrase) return { error: "合言葉を入れてください。" };
-
-  const place = await prisma.place.findUnique({ where: { passphrase } });
-  if (!place) return { error: "その合言葉のグループは見つかりませんでした。" };
-
-  const already = await prisma.membership.findUnique({
-    where: { userId_placeId: { userId: user.id, placeId: place.id } },
-  });
-  if (!already) {
-    await prisma.membership.create({ data: { userId: user.id, placeId: place.id } });
-  }
 
   revalidatePath("/");
   redirect(`/b/${place.slug}`);

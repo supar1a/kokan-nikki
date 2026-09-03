@@ -1,21 +1,32 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "./db";
-import { requireUser } from "./auth";
+import { currentUser, requireUser } from "./auth";
 
 const AUTHOR = { select: { id: true, name: true } } as const;
 
-/** グループはメンバーだけのもの。外の人には、あることすら伏せる。 */
-export async function requirePlace(slug: string) {
-  const user = await requireUser();
-
+/**
+ * URL を持っている人のために、グループを開ける。
+ * この URL 自体が招待状なので、まだメンバーでない人にも「あること」は見せる
+ * （名前と、ひとことと、誰がいるかまで。中身は見せない）。
+ */
+export async function openPlace(slug: string) {
   const place = await prisma.place.findUnique({ where: { slug } });
   if (!place) notFound();
 
-  const membership = await prisma.membership.findUnique({
-    where: { userId_placeId: { userId: user.id, placeId: place.id } },
-  });
-  if (!membership) notFound();
+  const user = await currentUser();
+  const membership = user
+    ? await prisma.membership.findUnique({
+        where: { userId_placeId: { userId: user.id, placeId: place.id } },
+      })
+    : null;
 
+  return { user, place, membership };
+}
+
+/** 中身を読む画面で使う。メンバーでなければ、入口へ戻す。 */
+export async function requirePlace(slug: string) {
+  const { user, place, membership } = await openPlace(slug);
+  if (!user || !membership) redirect(`/b/${slug}`);
   return { user, place, membership };
 }
 

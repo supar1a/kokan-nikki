@@ -1,14 +1,47 @@
 import { prisma } from "@/lib/db";
-import { requireUser } from "@/lib/auth";
+import { currentUser } from "@/lib/auth";
 import { kanjiDateShort, kanjiNumber } from "@/lib/kanji";
+import { joinByPassphraseAction, startAction } from "@/app/actions/identity";
 import { Masthead } from "@/components/masthead";
 import { PaperLink } from "@/components/paper-link";
-import { signOutAction } from "@/app/actions/auth";
+import { GateMark } from "@/components/gate-mark";
+import { DevSwitcher, PassphraseForm, StartForm } from "@/components/identity-forms";
 
-export const metadata = { title: "グループ — 短冊" };
+export const metadata = { title: "短冊" };
 
-export default async function PlacesPage() {
-  const user = await requireUser();
+const isDev = process.env.NODE_ENV !== "production";
+
+export default async function HomePage() {
+  const user = await currentUser();
+
+  // ── まだ誰でもない人。名前をひとつきくだけ。 ──
+  if (!user) {
+    const people = isDev
+      ? await prisma.user.findMany({
+          orderBy: { createdAt: "asc" },
+          take: 8,
+          select: { id: true, name: true },
+        })
+      : [];
+
+    return (
+      <main className="gate">
+        <div className="gate-inner fade-in">
+          <GateMark />
+          <div className="gate-form">
+            <p className="gate-heading">はじめまして</p>
+            <StartForm action={startAction} />
+            <p className="leaf-lede">
+              アカウントはありません。名前は、このブラウザに残るだけです。
+              <br />
+              誰かに招待された方は、その URL をひらいてください。
+            </p>
+            {isDev ? <DevSwitcher people={people} /> : null}
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   const places = await prisma.place.findMany({
     where: { memberships: { some: { userId: user.id } } },
@@ -30,18 +63,11 @@ export default async function PlacesPage() {
     <div className="app">
       <Masthead sub={`${user.name} さん`}>
         <PaperLink href="/new" className="masthead-link" voice="rustle">
-          作成・参加
+          グループを作る
         </PaperLink>
-        {user.passKey ? (
-          <PaperLink href="/modoriguchi" className="masthead-link" voice="rustle">
-            ログイン用URL
-          </PaperLink>
-        ) : null}
-        <form action={signOutAction}>
-          <button type="submit" className="btn btn-quiet" style={{ fontSize: "0.72rem" }}>
-            ログアウト
-          </button>
-        </form>
+        <PaperLink href="/me" className="masthead-link" voice="rustle">
+          名前
+        </PaperLink>
       </Masthead>
 
       <div className="stage">
@@ -50,7 +76,7 @@ export default async function PlacesPage() {
             <div className="hollow tate fade-in">
               <p>まだグループがありません。</p>
               <PaperLink href="/new" className="btn" voice="rustle">
-                作成・参加
+                グループを作る
               </PaperLink>
             </div>
           ) : (
@@ -66,9 +92,7 @@ export default async function PlacesPage() {
                       <h2 className="book-name">{place.name}</h2>
                       <div className="slip-meta">
                         <span>{kanjiNumber(place._count.memberships)}人</span>
-                        <span>
-                          {written > 0 ? `${kanjiNumber(written)}枚` : "まだ何もない"}
-                        </span>
+                        <span>{written > 0 ? `${kanjiNumber(written)}枚` : "まだ何もない"}</span>
                         {last ? <span>{kanjiDateShort(last)}</span> : null}
                       </div>
                     </div>
@@ -81,6 +105,10 @@ export default async function PlacesPage() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="undercard">
+        <PassphraseForm action={joinByPassphraseAction} />
       </div>
     </div>
   );

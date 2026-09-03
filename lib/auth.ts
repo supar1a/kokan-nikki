@@ -1,71 +1,73 @@
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
-import { auth } from "@/auth";
 import { prisma } from "./db";
 
-const SECURE = process.env.NODE_ENV === "production";
-
-/** Auth.js が見にいくクッキー。https のときは接頭辞が付く。 */
-export const SESSION_COOKIE = SECURE
-  ? "__Secure-authjs.session-token"
-  : "authjs.session-token";
-
-const SESSION_DAYS = 30;
-
 /**
- * Auth.js の database 方式に合わせて、セッションを一つ立てる。
- * クッキーの中身だけ返すので、呼ぶ側が応答に載せる。
+ * アカウントはない。クッキーが、そのまま「その人」を指す。
+ *
+ * 照合するものが何もないので、なりすましは原理的に防げない。
+ * グループの URL を知っている人しか中に入れない、というところだけで守っている。
  */
-export async function issueSession(userId: string) {
-  const sessionToken = randomUUID();
-  const expires = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
-  await prisma.session.create({ data: { sessionToken, userId, expires } });
 
-  return {
-    name: SESSION_COOKIE,
-    value: sessionToken,
-    options: {
-      httpOnly: true,
-      sameSite: "lax" as const,
-      secure: SECURE,
-      path: "/",
-      expires,
-    },
-  };
-}
+const COOKIE = "tanzaku";
+const SECURE = process.env.NODE_ENV === "production";
+// 唯一の身元なので、ブラウザが許す上限いっぱい持たせる
+const DAYS = 400;
 
-/** server action の中から、そのまま入ってもらう */
-export async function startSession(userId: string) {
-  const cookie = await issueSession(userId);
-  (await cookies()).set(cookie.name, cookie.value, cookie.options);
-}
+/** いまのブラウザが名乗っている人。まだ名乗っていなければ null。 */
+export const currentUser = cache(async () => {
+  const token = (await cookies()).get(COOKIE)?.value;
+  if (!token) return null;
 
-/** 戻り口の合鍵。長くて当てられない文字列。 */
-export function newPassKey() {
-  return randomBytes(24).toString("base64url");
-}
-
-/** いま名乗っている人。名をまだ決めていなくても返す。 */
-export const getCurrentUser = cache(async () => {
-  const session = await auth();
-  const id = session?.user?.id;
-  if (!id) return null;
-  return prisma.user.findUnique({ where: { id } });
+  const session = await prisma.session.findUnique({
+    where: { token },
+    include: { user: true },
+  });
+  if (!session) return null;
+  if (session.expires.getTime() < Date.now()) {
+    await prisma.session.deleteMany({ where: { token } });
+    return null;
+  }
+  return session.user;
 });
 
-/** 戸を通っただけの人。名を決める画面だけがこれを使う。 */
-export async function requireSignedIn() {
-  const user = await getCurrentUser();
-  if (!user) redirect("/login");
+/** 名乗りが要る画面で使う。まだなら、名前をきく入口へ返す。 */
+export async function requireUser() {
+  const user = await currentUser();
+  if (!user) redirect("/");
   return user;
 }
 
-/** 名乗りを求める。メールのリンクで来た人は名がまだないので、先に決めてもらう。 */
-export async function requireUser() {
-  const user = await requireSignedIn();
-  const { name } = user;
-  if (!name) redirect("/namae");
-  return { ...user, name };
+/** このブラウザを、その人ということにする。 */
+export async function becomeUser(userId: string) {
+  const token = randomBytes(32).toString("base64url");
+  const expires = new Date(Date.now() + DAYS * 24 * 60 * 60 * 1000);
+
+  await prisma.session.create({ data: { token, userId, expires } });
+  (await cookies()).set(COOKIE, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: SECURE,
+    path: "/",
+    expires,
+  });
+}
+
+/** 名前をつけて、はじめる。 */
+export async function createAndBecome(name: string) {
+  const user = await prisma.user.create({ data: { name } });
+  await becomeUser(user.id);
+  return user;
+}
+
+/** このブラウザの名乗りを外す。 */
+export async function forget() {
+  const store = await cookies();
+  const token = store.get(COOKIE)?.value;
+  if (token) {
+    await prisma.session.deleteMany({ where: { token } });
+    store.delete(COOKIE);
+  }
 }

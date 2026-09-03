@@ -51,7 +51,7 @@ export function CreatePlaceForm({
           autoCapitalize="none"
         />
         <span className="field-note">
-          これを伝えた人だけが入れます。口で言える言葉にしておくと渡しやすい。
+          URL のかわりに、口で伝えて入ってもらうこともできます。
         </span>
       </label>
 
@@ -65,40 +65,6 @@ export function CreatePlaceForm({
           onClick={() => play("ink")}
         >
           作成する
-        </button>
-      </div>
-    </form>
-  );
-}
-
-export function JoinPlaceForm({ action }: { action: Action }) {
-  const [state, formAction, pending] = useActionState(action, null);
-  const { play } = useSound();
-
-  return (
-    <form action={formAction} className="leaf-section">
-      <label className="field">
-        <span className="field-label">合言葉</span>
-        <input
-          name="passphrase"
-          className="input"
-          required
-          spellCheck={false}
-          autoCapitalize="none"
-          placeholder="あかいとり"
-        />
-      </label>
-
-      {state?.error ? <p className="notice">{state.error}</p> : null}
-
-      <div className="row">
-        <button
-          type="submit"
-          className="btn"
-          disabled={pending}
-          onClick={() => play("turn")}
-        >
-          参加する
         </button>
       </div>
     </form>

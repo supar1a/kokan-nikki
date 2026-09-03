@@ -1,6 +1,7 @@
 // 手ざわりを確かめるための種データ。`npm run seed` で入れ直せる。
 //
 // 手番も宛先もない。誰かが思い出したときに書いて、誰かがたまに読む、という状態。
+// アカウントはないので、人は名前だけを持つ。
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -10,9 +11,9 @@ const now = Date.now();
 const at = (hoursAgo) => new Date(now - hoursAgo * HOUR);
 
 const PEOPLE = {
-  hanako: { email: "hanako@example.com", name: "はなこ" },
-  taro: { email: "taro@example.com", name: "たろう" },
-  jiro: { email: "jiro@example.com", name: "じろう" },
+  hanako: { name: "はなこ" },
+  taro: { name: "たろう" },
+  jiro: { name: "じろう" },
 };
 
 const SLIPS = [
@@ -71,16 +72,12 @@ async function main() {
   await prisma.slip.deleteMany();
   await prisma.membership.deleteMany();
   await prisma.session.deleteMany();
-  await prisma.account.deleteMany();
-  await prisma.verificationToken.deleteMany();
   await prisma.place.deleteMany();
   await prisma.user.deleteMany();
 
   const users = {};
   for (const [key, person] of Object.entries(PEOPLE)) {
-    users[key] = await prisma.user.create({
-      data: { ...person, emailVerified: at(200) },
-    });
+    users[key] = await prisma.user.create({ data: person });
   }
 
   const place = await prisma.place.create({
@@ -120,10 +117,10 @@ async function main() {
       "",
       `  グループ「${place.name}」　合言葉: ${place.passphrase}`,
       "",
-      "  /login の「開発用」から、そのまま入れます。",
-      "  はなこで入ると、前に見たあとに書かれた分に目印が出ます。",
+      "  入口の「開発用」から、その人として見られます。",
+      "  はなこで見ると、前に見たあとに書かれた分に目印が出ます。",
       "",
-      ...Object.values(PEOPLE).map((p) => `    ${p.email}　（${p.name}）`),
+      `  招待 URL: http://localhost:3000/b/${place.slug}`,
       "",
     ].join("\n"),
   );
