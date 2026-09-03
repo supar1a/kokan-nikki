@@ -1847,3 +1847,10 @@ a {
   gap: 0.7rem;
   width: 100%;
 }
+
+.compose-shortcut {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--sumi-ghost);
+  white-space: nowrap;
+}
