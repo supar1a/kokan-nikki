@@ -128,13 +128,15 @@ html::before {
   position: relative;
   z-index: 1;
   display: flex;
-  flex-direction: column;
+  /* 頭は右の端に立てる。縦組みは右から始まるので、そこが冊子の背にあたる。 */
+  flex-direction: row-reverse;
   height: 100dvh;
   min-height: 0;
 }
 
 .stage {
   flex: 1 1 auto;
+  min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -145,11 +147,14 @@ html::before {
    -------------------------------------------------------------------------- */
 
 .masthead {
+  writing-mode: vertical-rl;
   flex: 0 0 auto;
   display: flex;
+  flex-direction: row; /* 縦組みでは上から下へ */
   align-items: baseline;
   gap: clamp(1rem, 3vw, 2.5rem);
-  padding: clamp(1.6rem, 3.5vh, 2.6rem) var(--gutter) clamp(1.1rem, 2vh, 1.6rem);
+  padding-block: clamp(1.6rem, 2.8vw, 2.6rem) clamp(1.1rem, 1.8vw, 1.6rem);
+  padding-inline: var(--air);
 }
 
 .masthead-title {
@@ -172,10 +177,12 @@ html::before {
 }
 
 .masthead-nav {
-  margin-left: auto;
+  /* 品書きは、柱の下の端へ落とす */
+  margin-inline-start: auto;
   flex: 0 1 auto;
-  min-width: 0;
+  min-inline-size: 0;
   display: flex;
+  flex-direction: row; /* 縦組みでは上から下へ */
   align-items: center;
   gap: clamp(0.9rem, 2vw, 1.8rem);
 }
@@ -193,11 +200,13 @@ html::before {
   color: var(--sumi);
 }
 
+/* 柱と場を隔てる、縦の罫 */
 .masthead-rule {
-  height: 1px;
-  margin: 0 var(--gutter);
+  flex: 0 0 auto;
+  width: 1px;
+  margin: var(--air) 0;
   background: linear-gradient(
-    to right,
+    to bottom,
     transparent,
     var(--rule) 8%,
     var(--rule) 92%,
@@ -234,7 +243,8 @@ html::before {
   background: transparent;
   border: 1px solid var(--rule);
   border-radius: 1px;
-  padding: 0.7em 1.5em;
+  padding-block: 0.7em;
+  padding-inline: 1.5em;
   cursor: pointer;
   white-space: nowrap;
   text-decoration: none;
@@ -314,11 +324,30 @@ html::before {
   color: var(--sumi);
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--rule);
+  border-block-end: 1px solid var(--rule);
   border-radius: 0;
-  padding: 0.55rem 0.1rem;
+  padding-block: 0.55rem;
+  padding-inline: 0.1rem;
   outline: none;
   transition: border-color var(--quick) var(--ease);
+}
+
+/*
+ * 縦組みの場に置かれた入力欄。
+ * 横組みなら幅が決まれば高さは行で決まるが、縦組みでは逆で、
+ * 書ける長さ（＝高さ）をこちらで与えないと一字ぶんの高さに潰れる。
+ */
+.tate .input {
+  inline-size: min(58vh, 17rem);
+}
+
+/*
+ * 戸口の入力欄。伸ばしっぱなしにすると、名前ひとつのために
+ * 画面の丈いっぱいの帯が立つ。書く量に見合うところで止める。
+ */
+.gate-form .input {
+  inline-size: min(100%, 22rem);
+  align-self: flex-start;
 }
 
 /* 枠で囲まず、罫が濃くなることで焦点を示す */
@@ -327,7 +356,7 @@ html::before {
 }
 
 .input:focus {
-  border-bottom-color: var(--sumi);
+  border-block-end-color: var(--sumi);
   background-color: rgba(255, 253, 246, 0.55);
 }
 
@@ -570,7 +599,8 @@ html::before {
 
 .compose {
   display: flex;
-  flex-direction: column;
+  /* 書く場も右から左へ。書き終えたさきに釦が置かれる。 */
+  flex-direction: row-reverse;
   height: 100%;
   min-height: 0;
   padding: var(--air) var(--gutter);
@@ -579,6 +609,7 @@ html::before {
 
 .compose-shell {
   flex: 1 1 auto;
+  min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: row-reverse; /* 縦組みの読み順に合わせて、右から左へ */
@@ -625,13 +656,22 @@ html::before {
   outline: none;
 }
 
+/* 書き終えたさき、いちばん左の端。巻物でいえば、次の一枚が来る場所。 */
 .compose-foot {
+  writing-mode: vertical-rl;
   flex: 0 0 auto;
   display: flex;
+  flex-direction: row; /* 縦組みでは上から下へ */
   align-items: center;
   gap: 1rem;
-  padding-top: clamp(1rem, 2vh, 1.6rem);
-  border-top: 1px solid var(--rule-soft);
+  padding-block-start: clamp(1rem, 2vw, 1.6rem);
+  border-block-start: 1px solid var(--rule-soft);
+}
+
+/* 書く場の断りごとも、まわりに合わせて縦に */
+.compose > .notice {
+  writing-mode: vertical-rl;
+  flex: 0 0 auto;
 }
 
 /* 原稿用紙のうっすらとした罫 */
@@ -652,6 +692,8 @@ html::before {
 
 .gate-inner {
   display: flex;
+  /* 縦組みの読み順に合わせて、印が右、書くところがその左 */
+  flex-direction: row-reverse;
   align-items: stretch;
   gap: clamp(2.5rem, 8vw, 7rem);
   width: 100%;
@@ -683,11 +725,13 @@ html::before {
 }
 
 .gate-form {
-  flex: 1 1 auto;
+  writing-mode: vertical-rl;
+  flex: 0 1 auto;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* 縦組みでは右から左へ */
   gap: 1.8rem;
-  max-width: 24rem;
+  /* 縦組みでは、書ける長さは高さのほう。ここで与えないと一行に潰れる。 */
+  inline-size: min(74vh, 32rem);
   align-self: center;
 }
 
@@ -750,6 +794,13 @@ html::before {
   padding-block-end: clamp(2rem, 4vw, 4rem);
   margin-block-end: clamp(2rem, 4vw, 4rem);
   border-block-end: 1px solid var(--rule);
+}
+
+/* 後ろに何も続かないときは、区切る相手がいないので罫も引かない */
+.panel:last-child {
+  padding-block-end: 0;
+  margin-block-end: 0;
+  border-block-end: 0;
 }
 
 .panel-title {
@@ -848,6 +899,7 @@ a {
 
   .masthead {
     gap: 0.8rem;
+    padding-block: 1.25rem 1rem;
     padding-inline: 1.25rem;
   }
 
@@ -862,7 +914,7 @@ a {
   }
 
   .masthead {
-    /* 送り代のぶんだけ右を詰め、品書き側の余白で埋め戻す */
+    /* 送り代のぶんだけ下を詰め、品書き側の余白で埋め戻す */
     padding-inline-end: 2px;
   }
 
@@ -870,15 +922,32 @@ a {
      端を薄めて「まだ続く」ことを示す。 */
   .masthead-nav {
     gap: 0.9rem;
-    overflow-x: auto;
+    overflow-y: auto;
     scrollbar-width: none;
     padding-inline-end: 18px;
-    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent 100%);
-    mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 18px), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 18px), transparent 100%);
   }
 
   .masthead-nav::-webkit-scrollbar {
     display: none;
+  }
+
+  /*
+   * 幅の乏しい画面では、釦を左の端に置くと書く場がそのぶん痩せる。
+   * 縦組みで惜しいのは幅のほうなので、釦は下へ戻す。字は縦のまま。
+   */
+  .compose {
+    flex-direction: column;
+  }
+
+  .compose-foot {
+    flex-direction: column; /* 縦組みでは右から左へ */
+    align-items: flex-start;
+    padding-block-start: 0;
+    border-block-start: 0;
+    padding-inline-start: clamp(0.8rem, 2vh, 1.2rem);
+    border-inline-start: 1px solid var(--rule-soft);
   }
 
   .masthead-link,
@@ -918,33 +987,11 @@ a {
 
 /* 手元にあるときだけ、朱が灯る */
 
-/* --------------------------------------------------------------------------
-   紙のページ（縦スクロールでよい画面）
-   -------------------------------------------------------------------------- */
-
-.leaf {
-  position: relative;
-  z-index: 1;
-  max-width: 44rem;
-  margin: 0 auto;
-  padding: var(--air) var(--gutter) calc(var(--air) * 2);
-  display: flex;
-  flex-direction: column;
-  gap: clamp(2rem, 5vh, 3.5rem);
-}
-
+/* 見出し・添え書き・入力欄をひと続きに積む。縦組みでは右から左へ。 */
 .leaf-section {
   display: flex;
   flex-direction: column;
   gap: 1.4rem;
-}
-
-.leaf-heading {
-  font-size: 0.82rem;
-  letter-spacing: 0.34em;
-  color: var(--sumi-faint);
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--rule-soft);
 }
 
 .leaf-lede {
@@ -962,16 +1009,16 @@ a {
 }
 
 /* --------------------------------------------------------------------------
-   合鍵 — 縦組みのなかに、横組みの小さな札を置く
+   合鍵 — 縦組みのなかに、URL の札だけを横に組んで置く
    -------------------------------------------------------------------------- */
 
+/* 札そのものは場の向きに従う。横に組むのは、中の URL だけでよい。 */
 .invite {
-  writing-mode: horizontal-tb;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* 縦組みでは右から左へ */
   align-items: flex-start;
   gap: 0.9rem;
-  width: 13rem;
+  max-block-size: 13rem;
 }
 
 /* --------------------------------------------------------------------------
@@ -984,8 +1031,13 @@ a {
   gap: 1.4rem;
 }
 
+/*
+ * 主たる釦。横組みでは端から端まで伸ばしていたが、縦組みで同じことをすると
+ * 墨の帯が場の丈いっぱいに立ってしまい、重すぎる。丈は抑える。
+ */
 .gate-wide {
-  width: 100%;
+  inline-size: min(100%, 11rem);
+  align-self: flex-start;
   padding-block: 0.85em;
 }
 
@@ -1176,7 +1228,10 @@ a {
   padding: 0.55em 1em;
 }
 
+/* URL はラテン文字と記号の並びなので、ここだけはどうしても横に組むほかない */
 .invite-url {
+  writing-mode: horizontal-tb;
+  inline-size: 13rem;
   font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
   font-size: 0.74rem;
   line-height: 1.9;

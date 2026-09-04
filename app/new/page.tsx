@@ -10,23 +10,30 @@ export default async function NewPlacePage() {
   await requireUser();
 
   return (
-    <>
+    <div className="app">
       <Masthead>
         <PaperLink href="/" className="masthead-link">
           入っているグループ
         </PaperLink>
       </Masthead>
 
-      <main className="leaf fade-in">
-        <section className="leaf-section">
-          <h1 className="leaf-heading">グループを作る</h1>
-          <p className="leaf-lede">
-            作ると招待用の URL ができます。それを渡した人だけが入れます。
-            中に書いたものは、そのメンバーだけが読みます。
-          </p>
-          <CreatePlaceForm action={createPlaceAction} />
-        </section>
-      </main>
-    </>
+      <div className="stage">
+        <div className="scroll-tate">
+          <div className="roster tate fade-in">
+            <section className="panel">
+              <h1 className="panel-title">グループを作る</h1>
+              <p className="caption">
+                作ると招待用の URL ができます。
+                <br />
+                それを渡した人だけが入れます。
+                <br />
+                中に書いたものは、そのメンバーだけが読みます。
+              </p>
+              <CreatePlaceForm action={createPlaceAction} />
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
