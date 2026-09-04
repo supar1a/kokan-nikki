@@ -34,6 +34,27 @@
   --slow: 460ms;
   --quick: 220ms;
 
+  /* 紙の地。粒と斑と繊維、四枚を掛け合わせて漉く。
+     もともとは開くたびに違う種から作っていたが、種は一つに決めた。 */
+  --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' seed='1741' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='0.34'/%3E%3C/svg%3E");
+  --paper-mottle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045' numOctaves='2' seed='6023' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23n)' opacity='0.1'/%3E%3C/svg%3E");
+  --paper: var(--paper-mottle), var(--paper-grain),
+    repeating-linear-gradient(
+      97deg,
+      rgba(120, 104, 82, 0.0095) 0px,
+      rgba(120, 104, 82, 0.0095) 1px,
+      transparent 1px,
+      transparent 5px
+    ),
+    repeating-linear-gradient(
+      3deg,
+      rgba(120, 104, 82, 0.0068) 0px,
+      rgba(120, 104, 82, 0.0068) 1px,
+      transparent 1px,
+      transparent 9px
+    );
+  --paper-size: 600px 600px, 260px 260px, auto, auto;
+
   color-scheme: light;
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
@@ -51,34 +72,18 @@ body {
   font-size: 16px;
   color: var(--sumi);
   background-color: var(--washi);
+  background-image: var(--paper);
+  background-size: var(--paper-size);
+  background-blend-mode: multiply;
   letter-spacing: 0.06em;
   line-height: 1.9;
 }
 
 /* --------------------------------------------------------------------------
-   紙 — 粗い繊維、雲のような濃淡、四隅の翳り。三枚重ねて漉く。
+   紙 — 四隅の翳り。地そのものは :root の --paper に漉いてある。
    -------------------------------------------------------------------------- */
 
-/*
- * 紙の地。
- *
- * 粒と斑は、それぞれ別の速さでゆっくり流れる。動かすのは transform と opacity だけで、
- * どちらも描き直しを伴わない（背景の位置を動かすと毎コマ描き直しになるので使わない）。
- * 層は画面より広く取り、ちょうどタイル一つぶん動かして、継ぎ目が出ないようにしてある。
- *
- * 模様そのものは、開くたびに違う種から作られる（layout.tsx で撒いている）。
- */
-body::before,
-body::after {
-  content: "";
-  position: fixed;
-  inset: -20%;
-  pointer-events: none;
-  z-index: 0;
-  will-change: transform;
-}
-
-/* 四隅の翳りだけは、画面に貼り付いたまま動かさない */
+/* 四隅の翳りだけは、紙ではなく光なので、画面に貼り付いたまま動かさない */
 html::before {
   content: "";
   position: fixed;
@@ -91,70 +96,6 @@ html::before {
     rgba(94, 78, 56, 0.07) 100%
   );
   mix-blend-mode: multiply;
-}
-
-@keyframes paper-grain-drift {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(-260px, -260px, 0);
-  }
-}
-
-@keyframes paper-mottle-drift {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(600px, -600px, 0);
-  }
-}
-
-/* 光の当たりぐあいが、ゆっくり変わる */
-@keyframes paper-light {
-  from {
-    opacity: 0.1;
-  }
-  to {
-    opacity: 0.2;
-  }
-}
-
-/* 細かな粒子と、紙の繊維の流れ */
-body::before {
-  background-image:
-    var(--paper-grain),
-    repeating-linear-gradient(
-      97deg,
-      rgba(120, 104, 82, 0.028) 0px,
-      rgba(120, 104, 82, 0.028) 1px,
-      transparent 1px,
-      transparent 5px
-    ),
-    repeating-linear-gradient(
-      3deg,
-      rgba(120, 104, 82, 0.02) 0px,
-      rgba(120, 104, 82, 0.02) 1px,
-      transparent 1px,
-      transparent 9px
-    );
-  background-size: 260px 260px, auto, auto;
-  opacity: 0.34;
-  mix-blend-mode: multiply;
-  animation: paper-grain-drift 240s linear infinite;
-}
-
-/* 漉きむら */
-body::after {
-  background-image: var(--paper-mottle);
-  background-size: 600px 600px;
-  opacity: 0.16;
-  mix-blend-mode: multiply;
-  animation:
-    paper-mottle-drift 420s linear infinite,
-    paper-light 96s ease-in-out infinite alternate;
-  will-change: transform, opacity;
 }
 
 /* --------------------------------------------------------------------------
@@ -412,6 +353,17 @@ body::after {
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
+  /*
+   * 紙は画面ではなく、文字のほうに属する。
+   * local にすると地が中身と一緒に流れるので、止まった紙の上を文字が滑るのではなく、
+   * 一枚の紙そのものを繰っているように見える。
+   * 下の body の地と二重に重ならないよう、ここは色で一度塞いでから漉く。
+   */
+  background-color: var(--washi);
+  background-image: var(--paper);
+  background-size: var(--paper-size);
+  background-blend-mode: multiply;
+  background-attachment: local;
   scrollbar-width: thin;
   scrollbar-color: rgba(33, 30, 25, 0.16) transparent;
 }
@@ -886,13 +838,6 @@ a {
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
-  }
-
-  /* 紙の地は、動かさずに置いたままにする */
-  body::before,
-  body::after {
-    animation: none !important;
-    transform: none !important;
   }
 }
 
