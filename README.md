@@ -224,7 +224,7 @@ components/        巻物の一枚・書く場・戸口・音まわり
 
 ## 公開する（Vercel）
 
-置き場は `github.com/supar1a/tsurezure`。
+公開先は **https://tsure-zure.vercel.app** 、置き場は `github.com/supar1a/tsurezure`。
 GitHub に push すると Vercel が拾って公開しなおす。環境変数は二種類だけ。
 
 | 名前 | どこから |
@@ -237,9 +237,15 @@ GitHub に push すると Vercel が拾って公開しなおす。環境変数�
 
 ### 公開先の名前を変える
 
-`*.vercel.app` の名前は Vercel のプロジェクト名がそのまま出る。変えるには
-Vercel の画面で **Settings → General → Project Name** を書きかえる（CLI からなら
-`vercel login` のあと `vercel project rename`）。GitHub の置き場の名前とは別もので、
+`*.vercel.app` の名前は Vercel のプロジェクト名がそのまま出る。
+
+```sh
+vercel login
+vercel project rename <いまの名前> <新しい名前>
+```
+
+**名前を変えただけでは新しい URL は生えない。** 次に本番へ配信したときに割り当たるので、
+一度 push してから確かめること。GitHub の置き場の名前とは別ものなので、
 置き場を変えても公開先は変わらない。
 
 なお、データベースの名前（ローカルの `kokan_nikki` と Neon 側）はそのままにしてある。
