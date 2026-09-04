@@ -15,7 +15,16 @@ export type SlipRow = {
  * 巻物のなかの一枚。全文を出す。
  * 名前と日付だけがリンクで、本文はただの文字。走り読みさせず、読ませるため。
  */
-export function SlipColumn({ slip, slug }: { slip: SlipRow; slug: string }) {
+export function SlipColumn({
+  slip,
+  slug,
+  mine = false,
+}: {
+  slip: SlipRow;
+  slug: string;
+  /** 自分の書いたものか。だとすれば、開けば直せるし消せる。 */
+  mine?: boolean;
+}) {
   return (
     <article className="slip">
       <header className="slip-head">
@@ -29,6 +38,7 @@ export function SlipColumn({ slip, slug }: { slip: SlipRow; slug: string }) {
 
         <div className="slip-meta">
           {!slip.published ? <span className="seal">下書き</span> : null}
+          {mine ? <span className="slip-mine">じぶん</span> : null}
           <PaperLink href={`/s/${slip.id}`} className="slip-when">
             {kanjiDateShort(slip.createdAt)}
           </PaperLink>

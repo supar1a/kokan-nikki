@@ -9,8 +9,9 @@ import { useEffect } from "react";
  * 読みかけの位置ではなく、常にここに合わせる。
  *
  * 縦組みの巻きでは scrollLeft の符号が環境で割れるので、位置を測って差分で動かす。
- * 写真が遅れて入ると幅が変わるので、読み込み後にもう一度だけ合わせ直す
- * （ただし、その前に自分で動かした人には触らない）。
+ * 写真が遅れて入ると幅が変わるため、寸法の変化を少しのあいだ見張って合わせ直す
+ * （window の load は、この時点でもう終わっていることがあるので当てにしない）。
+ * ただし、その前に自分で動かした人には触らない。
  */
 export function OpenAtLatest({ scrollerId }: { scrollerId: string }) {
   useEffect(() => {
@@ -28,26 +29,30 @@ export function OpenAtLatest({ scrollerId }: { scrollerId: string }) {
       if (!last) return;
       const view = scroller.getBoundingClientRect();
       const box = last.getBoundingClientRect();
-      scroller.scrollLeft += box.left - (view.left + 24);
+      const shift = box.left - (view.left + 24);
+      if (Math.abs(shift) < 1) return;
+      scroller.scrollLeft += shift;
     };
 
     align();
     const frame = requestAnimationFrame(align);
 
-    scroller.addEventListener("wheel", mark, { passive: true });
-    scroller.addEventListener("touchstart", mark, { passive: true });
-    scroller.addEventListener("pointerdown", mark, { passive: true });
+    // 写真が入って幅が変わるあいだだけ、寸法を見張る
+    const stream = scroller.querySelector<HTMLElement>("[data-stream]");
+    const watcher = new ResizeObserver(align);
+    if (stream) watcher.observe(stream);
+    const stopWatching = window.setTimeout(() => watcher.disconnect(), 6000);
+
+    const events = ["wheel", "touchstart", "pointerdown"] as const;
+    events.forEach((name) => scroller.addEventListener(name, mark, { passive: true }));
     window.addEventListener("keydown", mark);
-    // 写真が入って幅が変わったぶんを、最後にもう一度そろえる
-    window.addEventListener("load", align);
 
     return () => {
       cancelAnimationFrame(frame);
-      scroller.removeEventListener("wheel", mark);
-      scroller.removeEventListener("touchstart", mark);
-      scroller.removeEventListener("pointerdown", mark);
+      window.clearTimeout(stopWatching);
+      watcher.disconnect();
+      events.forEach((name) => scroller.removeEventListener(name, mark));
       window.removeEventListener("keydown", mark);
-      window.removeEventListener("load", align);
     };
   }, [scrollerId]);
 

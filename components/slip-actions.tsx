@@ -28,7 +28,7 @@ export function DeleteSlip({ slipId }: { slipId: string }) {
     <form
       action={deleteSlipAction}
       onSubmit={(event) => {
-        if (!window.confirm("この短冊を削除します。もとには戻せません。")) {
+        if (!window.confirm("この短冊を削除します。写真も一緒に消えます。もとには戻せません。")) {
           event.preventDefault();
           return;
         }
@@ -36,7 +36,7 @@ export function DeleteSlip({ slipId }: { slipId: string }) {
       }}
     >
       <input type="hidden" name="slipId" value={slipId} />
-      <button type="submit" className="btn btn-quiet" style={{ color: "var(--sumi-ghost)" }}>
+      <button type="submit" className="btn btn-quiet" style={{ color: "var(--sumi-faint)" }}>
         削除
       </button>
     </form>

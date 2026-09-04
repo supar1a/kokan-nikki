@@ -97,7 +97,7 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
                     <span className="unread-mark-label">ここから未読</span>
                   </div>
                 ) : null}
-                <SlipColumn slip={slip} slug={slug} />
+                <SlipColumn slip={slip} slug={slug} mine={slip.author.id === user!.id} />
               </Fragment>
             ))}
 

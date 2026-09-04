@@ -484,16 +484,26 @@ body::after {
   white-space: nowrap;
 }
 
+/* 日付は、その一枚をひらく戸口。触れる前から、そう見えていること
+   （手で触る画面には hover が無いので、線を出したままにする）。 */
 .slip-when {
   color: inherit;
   text-decoration: none;
-  border-block-end: 1px solid transparent;
+  border-block-end: 1px solid var(--rule-soft);
+  padding-block-end: 0.25em;
   transition: color var(--quick) var(--ease), border-color var(--quick) var(--ease);
 }
 
 .slip-when:hover {
   color: var(--sumi);
-  border-block-end-color: var(--rule);
+  border-block-end-color: rgba(33, 30, 25, 0.28);
+}
+
+/* 自分の書いたものだけに付く。ひらけば直せるし消せる、という目印。 */
+.slip-mine {
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  color: var(--sumi-ghost);
 }
 
 /* 本文は読むためのもの。リンクにしない（選んで引用できるように） */

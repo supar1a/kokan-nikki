@@ -38,7 +38,14 @@ export default async function ByPersonPage({
             {slips.length === 0 ? (
               <p className="waiting">{name}さんは、まだ何も書いていません。</p>
             ) : (
-              slips.map((slip) => <SlipColumn key={slip.id} slip={slip} slug={slug} />)
+              slips.map((slip) => (
+                <SlipColumn
+                  key={slip.id}
+                  slip={slip}
+                  slug={slug}
+                  mine={slip.author.id === user.id}
+                />
+              ))
             )}
           </div>
         </div>
