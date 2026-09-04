@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useSound } from "./sound-provider";
+import { PHOTO_MARK, hasPhotoMark } from "@/lib/text";
 import type { FormState } from "@/app/actions/slips";
 
 type Photo = { url: string; width: number; height: number; local: boolean };
@@ -40,6 +41,7 @@ export function Composer({
   const { play } = useSound();
   const lastStroke = useRef(0);
   const formRef = useRef<HTMLFormElement>(null);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
   const submitRef = useRef<HTMLButtonElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const isMac = useSyncExternalStore(subscribeNothing, readIsMac, () => false);
@@ -90,6 +92,9 @@ export function Composer({
       carrier.items.add(new File([shrunk.blob], "photo.jpg", { type: "image/jpeg" }));
       input.files = carrier.files;
 
+      // いま書いている場所に印を置く。写真はそこに入る。
+      putMark();
+
       if (photo?.local) URL.revokeObjectURL(photo.url);
       setPhoto({
         url: URL.createObjectURL(shrunk.blob),
@@ -103,10 +108,42 @@ export function Composer({
     }
   }
 
+  /** カーソルのところに印を置く。すでに置いてあれば動かさない。 */
+  function putMark() {
+    const el = bodyRef.current;
+    if (!el || hasPhotoMark(el.value)) return;
+
+    const start = el.selectionStart ?? el.value.length;
+    const end = el.selectionEnd ?? start;
+    const before = el.value.slice(0, start);
+    const after = el.value.slice(end);
+
+    // 文の途中に割り込んだときは、前後を改行で空ける
+    const lead = before && !before.endsWith("\n") ? "\n" : "";
+    const tail = after && !after.startsWith("\n") ? "\n" : "";
+    const inserted = lead + PHOTO_MARK + tail;
+
+    el.value = before + inserted + after;
+    const caret = start + inserted.length;
+    el.setSelectionRange(caret, caret);
+    el.focus();
+    setCount(countChars(el.value));
+  }
+
+  function takeMark() {
+    const el = bodyRef.current;
+    if (!el) return;
+    el.value = el.value
+      .replace(/[\n]?(［写真］|\[写真\])[\n]?/g, "\n")
+      .replace(/\n{3,}/g, "\n\n");
+    setCount(countChars(el.value));
+  }
+
   function detach() {
     if (fileRef.current) fileRef.current.value = "";
     if (photo?.local) URL.revokeObjectURL(photo.url);
     setPhoto(null);
+    takeMark();
     play("turn");
   }
 
@@ -122,6 +159,7 @@ export function Composer({
 
       <div className="compose-shell">
         <textarea
+          ref={bodyRef}
           name="body"
           className="compose-body"
           placeholder="ここから、書く。"
@@ -174,7 +212,7 @@ export function Composer({
             </button>
           </span>
         ) : (
-          <span className="compose-photo-hint">写真は貼り付けで一枚だけ</span>
+          <span className="compose-photo-hint">写真は、貼り付けたところに入ります</span>
         )}
 
         <span className="compose-count">{count > 0 ? `${count}字` : "　"}</span>

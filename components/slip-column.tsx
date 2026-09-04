@@ -1,5 +1,5 @@
 import { kanjiDateShort } from "@/lib/kanji";
-import { paragraphs } from "@/lib/text";
+import { paragraphs, splitAroundPhoto } from "@/lib/text";
 import { PaperLink } from "./paper-link";
 
 export type SlipRow = {
@@ -35,13 +35,7 @@ export function SlipColumn({ slip, slug }: { slip: SlipRow; slug: string }) {
         </div>
       </header>
 
-      {slip.photo ? <SlipPhoto photo={slip.photo} /> : null}
-
-      <div className="slip-body">
-        {paragraphs(slip.body).map((block, index) => (
-          <p key={index}>{block}</p>
-        ))}
-      </div>
+      <SlipText body={slip.body} photo={slip.photo} />
     </article>
   );
 }
@@ -66,6 +60,46 @@ export function SlipPhoto({
         loading="lazy"
         decoding="async"
       />
+    </div>
+  );
+}
+
+/**
+ * 本文と、その途中に置かれた写真。
+ * 印のところで割って、前・写真・後ろ の順に並べる。
+ */
+export function SlipText({
+  body,
+  photo,
+  bodyClassName = "slip-body",
+  photoClassName = "slip-photo",
+}: {
+  body: string;
+  photo: { id: string; width: number; height: number } | null;
+  bodyClassName?: string;
+  photoClassName?: string;
+}) {
+  if (!photo) {
+    return <Prose body={body} className={bodyClassName} />;
+  }
+
+  const { before, after } = splitAroundPhoto(body);
+
+  return (
+    <>
+      {before ? <Prose body={before} className={bodyClassName} /> : null}
+      <SlipPhoto photo={photo} className={photoClassName} />
+      {after ? <Prose body={after} className={bodyClassName} /> : null}
+    </>
+  );
+}
+
+function Prose({ body, className }: { body: string; className: string }) {
+  return (
+    <div className={className}>
+      {paragraphs(body).map((block, index) => (
+        <p key={index}>{block}</p>
+      ))}
     </div>
   );
 }

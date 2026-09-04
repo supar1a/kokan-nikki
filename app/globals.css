@@ -699,21 +699,37 @@ body::after {
    ノート
    -------------------------------------------------------------------------- */
 
+/* グループは「選ぶもの」なので、一枚ずつ囲って輪郭を与える。
+   （巻物のほうは「読むもの」なので囲わない。） */
 .book {
   display: flex;
   flex-direction: column;
-  gap: clamp(1.4rem, 2.4vw, 2.6rem);
+  gap: clamp(1.2rem, 2vw, 2.2rem);
+  /* 中身のぶんだけの高さにする。短冊のように、それぞれ長さが違ってよい。 */
+  align-self: flex-start;
+  min-inline-size: 15rem;
+  max-inline-size: 100%;
   max-block-size: 22rem;
-  padding-block-end: clamp(1.6rem, 2.6vw, 2.8rem);
-  margin-block-end: clamp(1.6rem, 2.6vw, 2.8rem);
-  border-block-end: 1px solid var(--rule-soft);
+  padding: clamp(1.6rem, 2.4vh, 2.4rem) clamp(1.4rem, 2.2vw, 2rem);
+  margin-block-end: clamp(1.2rem, 2vw, 2rem);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background-color: rgba(255, 253, 246, 0.5);
+  box-shadow: 0 1px 14px rgba(94, 78, 56, 0.05);
   color: inherit;
   text-decoration: none;
-  transition: transform var(--slow) var(--ease);
+  transition:
+    transform var(--slow) var(--ease),
+    border-color var(--slow) var(--ease),
+    background-color var(--slow) var(--ease),
+    box-shadow var(--slow) var(--ease);
 }
 
 .book:hover {
   transform: translateY(-2px);
+  border-color: rgba(33, 30, 25, 0.22);
+  background-color: rgba(255, 253, 246, 0.85);
+  box-shadow: 0 3px 20px rgba(94, 78, 56, 0.09);
 }
 
 .book-name {
@@ -1289,6 +1305,8 @@ a {
   display: flex;
   align-items: flex-start;
   flex: 0 0 auto;
+  /* 本文の途中に割り込むので、前後を少し空ける */
+  margin-block: clamp(0.4rem, 0.8vw, 0.9rem);
 }
 
 .slip-photo img,
@@ -1335,5 +1353,24 @@ a {
   font-size: 0.72rem;
   letter-spacing: 0.1em;
   color: var(--sumi-ghost);
+  white-space: nowrap;
+}
+
+/* グループの札の中は、上から順に置く（巻物の頭のように離さない） */
+.book-head {
+  display: flex;
+  flex-direction: row; /* 縦組みでは上から下へ */
+  align-items: flex-start;
+  gap: clamp(1.4rem, 2.2vw, 2.2rem);
+}
+
+.book-meta {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1.2em;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--sumi-faint);
   white-space: nowrap;
 }

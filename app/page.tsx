@@ -88,9 +88,9 @@ export default async function HomePage() {
 
                 return (
                   <PaperLink key={place.id} href={`/b/${place.slug}`} className="book">
-                    <div className="slip-head">
+                    <div className="book-head">
                       <h2 className="book-name">{place.name}</h2>
-                      <div className="slip-meta">
+                      <div className="book-meta">
                         <span>{kanjiNumber(place._count.memberships)}人</span>
                         <span>{written > 0 ? `${kanjiNumber(written)}枚` : "まだ何もない"}</span>
                         {last ? <span>{kanjiDateShort(last)}</span> : null}

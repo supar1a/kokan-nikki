@@ -15,3 +15,31 @@ export function paragraphs(body: string) {
 export function countChars(body: string) {
   return [...body.replace(/\s/g, "")].length;
 }
+
+/**
+ * 写真を置く場所の印。
+ *
+ * 本文のただの文字として持つ。そうすれば、書いたあとで位置を動かすのも
+ * 切り貼りでできるし、書きかけの見た目のまま扱える。
+ */
+export const PHOTO_MARK = "［写真］";
+const PHOTO_MARK_RE = /［写真］|\[写真\]/;
+
+export function hasPhotoMark(body: string) {
+  return PHOTO_MARK_RE.test(body);
+}
+
+/**
+ * 印のあるところで本文を二つに割る。
+ * 印が無ければ、写真は本文より前に置く（印を持たない古い短冊のため）。
+ */
+export function splitAroundPhoto(body: string) {
+  const found = PHOTO_MARK_RE.exec(body);
+  if (!found) return { before: "", after: body };
+
+  const strip = (text: string) => text.replace(new RegExp(PHOTO_MARK_RE, "g"), "");
+  return {
+    before: strip(body.slice(0, found.index)).trimEnd(),
+    after: strip(body.slice(found.index + found[0].length)).trimStart(),
+  };
+}

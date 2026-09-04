@@ -1,10 +1,9 @@
 import { requireReadableSlip } from "@/lib/guards";
 import { kanjiDate, kanjiTime } from "@/lib/kanji";
-import { paragraphs } from "@/lib/text";
 import { Masthead } from "@/components/masthead";
 import { PaperLink } from "@/components/paper-link";
 import { DeleteSlip, PublishToggle } from "@/components/slip-actions";
-import { SlipPhoto } from "@/components/slip-column";
+import { SlipText } from "@/components/slip-column";
 
 export default async function SlipPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -45,13 +44,12 @@ export default async function SlipPage({ params }: { params: Promise<{ id: strin
               </div>
             </header>
 
-            {slip.photo ? <SlipPhoto photo={slip.photo} className="sheet-photo" /> : null}
-
-            <div className="sheet-body">
-              {paragraphs(slip.body).map((block, index) => (
-                <p key={index}>{block}</p>
-              ))}
-            </div>
+            <SlipText
+              body={slip.body}
+              photo={slip.photo}
+              bodyClassName="sheet-body"
+              photoClassName="sheet-photo"
+            />
           </article>
         </div>
       </div>
