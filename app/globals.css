@@ -1394,7 +1394,8 @@ a {
   align-items: stretch;
   height: 100%;
   padding: var(--air) var(--gutter);
-  gap: clamp(1.4rem, 2.2vw, 2.4rem);
+  /* 目次は一篇が一行なので、行間を広めに取って読みやすくする */
+  gap: clamp(2.1rem, 3.3vw, 3.6rem);
 }
 
 .contents-title {
