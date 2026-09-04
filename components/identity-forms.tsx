@@ -11,13 +11,7 @@ type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
  * はじめまして。グループを作るところから始める。
  * 名前だけ決めても行き先が無いので、名前はこの form のひとつとして聞く。
  */
-export function StartForm({
-  action,
-  suggestion,
-}: {
-  action: Action;
-  suggestion: string;
-}) {
+export function StartForm({ action }: { action: Action }) {
   const [state, formAction, pending] = useActionState(action, null);
   const { play } = useSound();
 
@@ -45,22 +39,6 @@ export function StartForm({
           autoComplete="nickname"
           placeholder="呼ばれたい名前"
         />
-      </label>
-
-      <label className="field">
-        <span className="field-label">このグループの合言葉</span>
-        <input
-          name="passphrase"
-          className="input"
-          maxLength={32}
-          required
-          defaultValue={suggestion}
-          spellCheck={false}
-          autoCapitalize="none"
-        />
-        <span className="field-note">
-          あとから URL を渡すだけでも誘えます。これは、口で伝えたいとき用。
-        </span>
       </label>
 
       {state?.error ? <p className="notice">{state.error}</p> : null}
@@ -179,33 +157,6 @@ export function PickMe({
         ))}
       </div>
     </div>
-  );
-}
-
-export function PassphraseForm({ action }: { action: Action }) {
-  const [state, formAction, pending] = useActionState(action, null);
-  const { play } = useSound();
-
-  return (
-    <form action={formAction} className="gate-block">
-      <label className="field">
-        <span className="field-label">教わった合言葉で参加する</span>
-        <input
-          name="passphrase"
-          className="input"
-          required
-          spellCheck={false}
-          autoCapitalize="none"
-          placeholder="あかいとり"
-        />
-      </label>
-
-      {state?.error ? <p className="notice">{state.error}</p> : null}
-
-      <button type="submit" className="btn" disabled={pending} onClick={() => play("turn")}>
-        参加する
-      </button>
-    </form>
   );
 }
 

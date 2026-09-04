@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 
-import { normalizePassphrase, shortId } from "@/lib/ids";
+import { shortId } from "@/lib/ids";
 
 export type FormState = { error?: string } | null;
 
@@ -15,27 +15,14 @@ export async function createPlaceAction(
 ): Promise<FormState> {
   const user = await requireUser();
   const name = String(formData.get("name") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-  const passphrase = normalizePassphrase(String(formData.get("passphrase") ?? ""));
-
   if (name.length < 1 || name.length > 32) {
     return { error: "グループ名は1〜32字で入れてください。" };
-  }
-  if (passphrase.length < 2 || passphrase.length > 32) {
-    return { error: "合言葉は2〜32字で決めてください。" };
-  }
-
-  const taken = await prisma.place.findUnique({ where: { passphrase } });
-  if (taken) {
-    return { error: "その合言葉はもう使われています。別のものにしてください。" };
   }
 
   const place = await prisma.place.create({
     data: {
       name,
-      description: description || null,
-      slug: shortId(10),
-      passphrase,
+      slug: shortId(),
       memberships: { create: { userId: user.id, role: "owner" } },
     },
   });
@@ -65,29 +52,6 @@ async function requireOwner(placeId: string) {
     throw new Error("このグループを管理する権限がありません。");
   }
   return user;
-}
-
-/** 合言葉を付け替える。前の合言葉ではもう入れなくなる。 */
-export async function changePassphraseAction(
-  _prev: FormState,
-  formData: FormData,
-): Promise<FormState> {
-  const placeId = String(formData.get("placeId") ?? "");
-  await requireOwner(placeId);
-
-  const passphrase = normalizePassphrase(String(formData.get("passphrase") ?? ""));
-  if (passphrase.length < 2 || passphrase.length > 32) {
-    return { error: "合言葉は2〜32字で決めてください。" };
-  }
-
-  const taken = await prisma.place.findUnique({ where: { passphrase } });
-  if (taken && taken.id !== placeId) {
-    return { error: "その合言葉はもう使われています。別のものにしてください。" };
-  }
-
-  const place = await prisma.place.update({ where: { id: placeId }, data: { passphrase } });
-  revalidatePath(`/b/${place.slug}/members`);
-  return null;
 }
 
 export async function removeMemberAction(formData: FormData) {

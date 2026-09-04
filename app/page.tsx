@@ -1,12 +1,11 @@
 import { prisma } from "@/lib/db";
 import { currentUser } from "@/lib/auth";
 import { kanjiDateShort, kanjiNumber } from "@/lib/kanji";
-import { joinByPassphraseAction, startAction } from "@/app/actions/identity";
-import { suggestPassphrase } from "@/lib/ids";
+import { startAction } from "@/app/actions/identity";
 import { Masthead } from "@/components/masthead";
 import { PaperLink } from "@/components/paper-link";
 import { GateMark } from "@/components/gate-mark";
-import { DevSwitcher, PassphraseForm, StartForm } from "@/components/identity-forms";
+import { DevSwitcher, StartForm } from "@/components/identity-forms";
 
 export const metadata = { title: "短冊" };
 
@@ -31,10 +30,7 @@ export default async function HomePage() {
           <GateMark />
           <div className="gate-form">
             <p className="gate-heading">はじめまして</p>
-            <StartForm action={startAction} suggestion={suggestPassphrase()} />
-
-            <p className="gate-divider">または</p>
-            <PassphraseForm action={joinByPassphraseAction} />
+            <StartForm action={startAction} />
 
             <p className="leaf-lede">
               アカウントはありません。名前は、このブラウザに残るだけです。
@@ -101,9 +97,6 @@ export default async function HomePage() {
                         {last ? <span>{kanjiDateShort(last)}</span> : null}
                       </div>
                     </div>
-                    {place.description ? (
-                      <p className="book-note">{place.description}</p>
-                    ) : null}
                   </PaperLink>
                 );
               })}
@@ -112,9 +105,6 @@ export default async function HomePage() {
         </div>
       </div>
 
-      <div className="undercard">
-        <PassphraseForm action={joinByPassphraseAction} />
-      </div>
     </div>
   );
 }

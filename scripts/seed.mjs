@@ -93,9 +93,7 @@ async function main() {
   const place = await prisma.place.create({
     data: {
       name: "三人のところ",
-      description: "とくに用のない日のことを、置いておく。",
       slug: "sannin",
-      passphrase: "ゆうやけ",
       createdAt: at(200),
       memberships: {
         create: [
@@ -139,7 +137,7 @@ async function main() {
     [
       "種を蒔きました。",
       "",
-      `  グループ「${place.name}」　合言葉: ${place.passphrase}`,
+      `  グループ「${place.name}」`,
       "",
       "  入口の「開発用」から、その人として見られます。",
       "  はなこで見ると、前に見たあとに書かれた分に目印が出ます。",

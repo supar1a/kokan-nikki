@@ -4,7 +4,7 @@ import { requirePlace } from "@/lib/guards";
 import { kanjiDateShort } from "@/lib/kanji";
 import { Masthead } from "@/components/masthead";
 import { PaperLink } from "@/components/paper-link";
-import { InviteUrl, LeavePlace, Passphrase, RemoveMember } from "@/components/place-admin";
+import { InviteUrl, LeavePlace, RemoveMember } from "@/components/place-admin";
 
 export default async function MembersPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -43,11 +43,6 @@ export default async function MembersPage({ params }: { params: Promise<{ slug: 
                 <br />
                 そのまま仲間になります。
               </p>
-              <Passphrase
-                placeId={place.id}
-                passphrase={place.passphrase}
-                canChange={isOwner}
-              />
               {!isOwner ? <LeavePlace placeId={place.id} /> : null}
             </section>
 

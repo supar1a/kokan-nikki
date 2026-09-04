@@ -31,7 +31,6 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
           <GateMark />
           <div className="gate-form">
             <p className="gate-heading">{place.name}</p>
-            {place.description ? <p className="leaf-lede">{place.description}</p> : null}
 
             {user ? (
               <JoinAsMe action={joinAction} slug={slug} name={user.name} />

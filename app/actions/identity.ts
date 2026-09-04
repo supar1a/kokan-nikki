@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { becomeUser, createAndBecome, currentUser, forget } from "@/lib/auth";
-import { normalizePassphrase, shortId } from "@/lib/ids";
+import { shortId } from "@/lib/ids";
 
 export type FormState = { error?: string } | null;
 
@@ -21,7 +21,6 @@ function readName(formData: FormData) {
 export async function startAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const name = readName(formData);
   const placeName = String(formData.get("placeName") ?? "").trim();
-  const passphrase = normalizePassphrase(String(formData.get("passphrase") ?? ""));
 
   if (placeName.length < 1 || placeName.length > 32) {
     return { error: "グループ名は1〜32字で入れてください。" };
@@ -29,19 +28,12 @@ export async function startAction(_prev: FormState, formData: FormData): Promise
   if (name.length < 1 || name.length > 24) {
     return { error: "名前は1〜24字で入れてください。" };
   }
-  if (passphrase.length < 2 || passphrase.length > 32) {
-    return { error: "合言葉は2〜32字で決めてください。" };
-  }
-  if (await prisma.place.findUnique({ where: { passphrase } })) {
-    return { error: "その合言葉はもう使われています。別のものにしてください。" };
-  }
 
   const user = await createAndBecome(name);
   const place = await prisma.place.create({
     data: {
       name: placeName,
-      slug: shortId(10),
-      passphrase,
+      slug: shortId(),
       memberships: { create: { userId: user.id, role: "owner" } },
     },
   });
@@ -100,20 +92,6 @@ export async function iAmAction(formData: FormData) {
 
   await becomeUser(userId);
   redirect(`/b/${slug}`);
-}
-
-/** 合言葉のほうから入る。 */
-export async function joinByPassphraseAction(
-  _prev: FormState,
-  formData: FormData,
-): Promise<FormState> {
-  const passphrase = String(formData.get("passphrase") ?? "").trim().toLowerCase();
-  if (!passphrase) return { error: "合言葉を入れてください。" };
-
-  const place = await prisma.place.findUnique({ where: { passphrase } });
-  if (!place) return { error: "その合言葉のグループは見つかりませんでした。" };
-
-  redirect(`/b/${place.slug}`);
 }
 
 export async function forgetAction() {

@@ -39,14 +39,12 @@ model Session {
 
 /// 仲間うちの閉じたグループ。この URL を渡された人が入れる。
 model Place {
-  id          String   @id @default(cuid())
+  id        String   @id @default(cuid())
   /// 招待 URL の実体。これを知っていることが、そのまま入場券になる。
-  slug        String   @unique
-  name        String
-  description String?
-  /// 口頭でも渡せるようにした、もうひとつの入口。
-  passphrase  String   @unique
-  createdAt   DateTime @default(now())
+  /// 鍵はこれ一本きりなので、当てられない長さにしてある。
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
 
   memberships Membership[]
   slips       Slip[]

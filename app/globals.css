@@ -741,27 +741,6 @@ body::after {
   color: var(--sumi-faint);
 }
 
-.gate-actions {
-  display: flex;
-  align-items: center;
-  gap: 1.4rem;
-  margin-top: 0.4rem;
-}
-
-.gate-alt {
-  font-size: 0.76rem;
-  letter-spacing: 0.16em;
-  color: var(--sumi-faint);
-  text-decoration: none;
-  border-bottom: 1px solid var(--rule);
-  padding-bottom: 2px;
-  transition: color var(--quick) var(--ease);
-}
-
-.gate-alt:hover {
-  color: var(--sumi);
-}
-
 /* --------------------------------------------------------------------------
    ノート
    -------------------------------------------------------------------------- */
@@ -804,16 +783,6 @@ body::after {
   font-weight: 500;
   letter-spacing: 0.22em;
   max-inline-size: 14em;
-}
-
-.book-note {
-  font-size: 0.82rem;
-  letter-spacing: 0.12em;
-  line-height: 2.2;
-  color: var(--sumi-soft);
-  max-inline-size: 100%;
-  max-block-size: 9rem;
-  overflow: hidden;
 }
 
 .panel {
@@ -1056,17 +1025,6 @@ a {
   width: 13rem;
 }
 
-.invite-actions {
-  display: flex;
-  gap: 0.6rem;
-}
-
-.invite .btn {
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  padding: 0.5em 0.9em;
-}
-
 /* --------------------------------------------------------------------------
    戸口 — Google と、メールに届くリンク
    -------------------------------------------------------------------------- */
@@ -1082,24 +1040,6 @@ a {
   padding-block: 0.85em;
 }
 
-.gate-divider {
-  display: flex;
-  align-items: center;
-  gap: 1.1rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.28em;
-  color: var(--sumi-ghost);
-  margin-block-start: 0.2rem;
-}
-
-.gate-divider::before,
-.gate-divider::after {
-  content: "";
-  flex: 1 1 auto;
-  height: 1px;
-  background: var(--rule-soft);
-}
-
 .gate-form .caption {
   font-size: 0.72rem;
   line-height: 2.1;
@@ -1109,15 +1049,6 @@ a {
   font-size: 0.72rem;
   padding: 0.15em 0.4em;
   margin-inline: 0.2em;
-}
-
-.gate-sentto {
-  font-size: 0.9rem;
-  letter-spacing: 0.08em;
-  color: var(--sumi);
-  padding-bottom: 0.9rem;
-  border-bottom: 1px solid var(--rule-soft);
-  word-break: break-all;
 }
 
 /* --------------------------------------------------------------------------
@@ -1215,24 +1146,6 @@ a {
    戻り口 — 名前だけで始めた人の、次に来るときの URL
    -------------------------------------------------------------------------- */
 
-.returnlink-url {
-  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
-  font-size: 0.78rem;
-  line-height: 1.9;
-  letter-spacing: 0.02em;
-  color: var(--sumi);
-  background: rgba(255, 253, 246, 0.66);
-  border: 1px solid var(--rule);
-  border-radius: 1px;
-  padding: 0.85em 1em;
-  word-break: break-all;
-}
-
-.gate-form strong {
-  font-weight: 600;
-  color: var(--shu);
-}
-
 /* --------------------------------------------------------------------------
    巻物の端 — はじまり（右端）と、次の一枚を書く白紙（左端）
    -------------------------------------------------------------------------- */
@@ -1290,20 +1203,6 @@ a {
    細部
    -------------------------------------------------------------------------- */
 
-.field-note {
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  line-height: 1.95;
-  color: var(--sumi-faint);
-}
-
-.invite-edit {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  width: 100%;
-}
-
 /* --------------------------------------------------------------------------
    名乗り直し — クッキーを失った人が、自分を選び直す
    -------------------------------------------------------------------------- */
@@ -1341,26 +1240,6 @@ a {
 }
 
 /* 一覧の下、そっと置く合言葉の入口 */
-.undercard {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: flex-end;
-  gap: 1rem;
-  padding: clamp(1rem, 2vh, 1.6rem) var(--gutter);
-  border-top: 1px solid var(--rule-soft);
-}
-
-.undercard .gate-block {
-  flex-direction: row;
-  align-items: flex-end;
-  gap: 1rem;
-  width: 100%;
-  max-width: 28rem;
-}
-
-.undercard .field {
-  flex: 1 1 auto;
-}
 
 /* --------------------------------------------------------------------------
    写真 — 一枚だけ。紙に置いたように、行の高さに収める。

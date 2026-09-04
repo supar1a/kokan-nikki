@@ -1,5 +1,4 @@
 import { requireUser } from "@/lib/auth";
-import { suggestPassphrase } from "@/lib/ids";
 import { createPlaceAction } from "@/app/actions/places";
 import { Masthead } from "@/components/masthead";
 import { PaperLink } from "@/components/paper-link";
@@ -25,7 +24,7 @@ export default async function NewPlacePage() {
             作ると招待用の URL ができます。それを渡した人だけが入れます。
             中に書いたものは、そのメンバーだけが読みます。
           </p>
-          <CreatePlaceForm action={createPlaceAction} suggestion={suggestPassphrase()} />
+          <CreatePlaceForm action={createPlaceAction} />
         </section>
       </main>
     </>
