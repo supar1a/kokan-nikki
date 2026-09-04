@@ -1279,3 +1279,61 @@ a {
 .undercard .field {
   flex: 1 1 auto;
 }
+
+/* --------------------------------------------------------------------------
+   写真 — 一枚だけ。紙に置いたように、行の高さに収める。
+   -------------------------------------------------------------------------- */
+
+.slip-photo,
+.sheet-photo {
+  display: flex;
+  align-items: flex-start;
+  flex: 0 0 auto;
+}
+
+.slip-photo img,
+.sheet-photo img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-height: 100%;
+  max-width: clamp(12rem, 22vw, 20rem);
+  border: 1px solid var(--rule-soft);
+  background-color: var(--washi-lit);
+  box-shadow: 0 1px 12px rgba(94, 78, 56, 0.08);
+}
+
+.sheet-photo img {
+  max-width: clamp(14rem, 26vw, 24rem);
+}
+
+/* 書く画面の足元に置く控え */
+.compose-photo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.compose-photo img {
+  display: block;
+  width: auto;
+  height: 2.6rem;
+  max-width: 5rem;
+  object-fit: cover;
+  border: 1px solid var(--rule);
+  background-color: var(--washi-lit);
+}
+
+.compose-photo .btn {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  padding-inline: 0.5em;
+  color: var(--sumi-ghost);
+}
+
+.compose-photo-hint {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--sumi-ghost);
+  white-space: nowrap;
+}

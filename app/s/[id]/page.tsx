@@ -4,6 +4,7 @@ import { paragraphs } from "@/lib/text";
 import { Masthead } from "@/components/masthead";
 import { PaperLink } from "@/components/paper-link";
 import { DeleteSlip, PublishToggle } from "@/components/slip-actions";
+import { SlipPhoto } from "@/components/slip-column";
 
 export default async function SlipPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -35,7 +36,7 @@ export default async function SlipPage({ params }: { params: Promise<{ id: strin
                 className="sheet-title"
                 voice="rustle"
               >
-                {slip.author.name ?? "名もなき人"}
+                {slip.author.name}
               </PaperLink>
               <div className="sheet-byline">
                 {!slip.published ? <span className="seal">下書き</span> : null}
@@ -43,6 +44,8 @@ export default async function SlipPage({ params }: { params: Promise<{ id: strin
                 <span>{kanjiTime(slip.createdAt)}</span>
               </div>
             </header>
+
+            {slip.photo ? <SlipPhoto photo={slip.photo} className="sheet-photo" /> : null}
 
             <div className="sheet-body">
               {paragraphs(slip.body).map((block, index) => (

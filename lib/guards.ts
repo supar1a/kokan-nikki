@@ -3,6 +3,8 @@ import { prisma } from "./db";
 import { currentUser, requireUser } from "./auth";
 
 const AUTHOR = { select: { id: true, name: true } } as const;
+// 一覧では、写真の実体は読まない。大きさだけあれば組める。
+const PHOTO = { select: { id: true, width: true, height: true } } as const;
 
 /**
  * URL を持っている人のために、グループを開ける。
@@ -45,7 +47,7 @@ export async function readableSlips(
       ...(options.authorId ? { authorId: options.authorId } : {}),
       OR: [{ published: true }, { authorId: userId }],
     },
-    include: { author: AUTHOR },
+    include: { author: AUTHOR, photo: PHOTO },
     orderBy: { createdAt: "asc" },
   });
 }
@@ -55,7 +57,7 @@ export async function requireReadableSlip(slipId: string) {
 
   const slip = await prisma.slip.findUnique({
     where: { id: slipId },
-    include: { author: AUTHOR, place: true },
+    include: { author: AUTHOR, place: true, photo: PHOTO },
   });
   if (!slip) notFound();
 

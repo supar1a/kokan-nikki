@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
+import { readPhoto } from "@/lib/photo";
 
 export type FormState = { error?: string } | null;
 
@@ -38,10 +39,15 @@ export async function writeSlipAction(_prev: FormState, formData: FormData): Pro
   const place = await prisma.place.findUnique({ where: { id: placeId } });
   if (!place) throw new Error("そのグループはありません。");
 
+  const photo = await readPhoto(formData);
   const published = formData.get("intent") !== "draft";
+
   const slip = await prisma.slip.create({
     data: { placeId, authorId: user.id, body, published },
   });
+  if (photo) {
+    await prisma.photo.create({ data: { slipId: slip.id, ...photo } });
+  }
 
   revalidatePath(`/b/${place.slug}`);
   redirect(published ? `/b/${place.slug}` : `/s/${slip.id}`);
@@ -55,7 +61,18 @@ export async function saveSlipAction(_prev: FormState, formData: FormData): Prom
   if (!body) return { error: "まだ何も書かれていません。" };
 
   const published = formData.get("intent") === "draft" ? false : slip.published;
+  const photo = await readPhoto(formData);
+  const removed = formData.get("photoRemove") === "1";
+
   await prisma.slip.update({ where: { id: slipId }, data: { body, published } });
+
+  // 貼り直したときは、古いほうを消してから入れ替える
+  if (photo || removed) {
+    await prisma.photo.deleteMany({ where: { slipId } });
+  }
+  if (photo) {
+    await prisma.photo.create({ data: { slipId, ...photo } });
+  }
 
   revalidatePath(`/b/${slip.place.slug}`);
   revalidatePath(`/s/${slipId}`);

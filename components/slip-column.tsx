@@ -7,7 +7,8 @@ export type SlipRow = {
   body: string;
   published: boolean;
   createdAt: Date;
-  author: { id: string; name: string | null };
+  author: { id: string; name: string };
+  photo: { id: string; width: number; height: number } | null;
 };
 
 /**
@@ -23,7 +24,7 @@ export function SlipColumn({ slip, slug }: { slip: SlipRow; slug: string }) {
           className="slip-who"
           voice="rustle"
         >
-          {slip.author.name ?? "名もなき人"}
+          {slip.author.name}
         </PaperLink>
 
         <div className="slip-meta">
@@ -34,11 +35,37 @@ export function SlipColumn({ slip, slug }: { slip: SlipRow; slug: string }) {
         </div>
       </header>
 
+      {slip.photo ? <SlipPhoto photo={slip.photo} /> : null}
+
       <div className="slip-body">
         {paragraphs(slip.body).map((block, index) => (
           <p key={index}>{block}</p>
         ))}
       </div>
     </article>
+  );
+}
+
+/** 貼られた一枚。行の高さに収まるところまで縮めて、紙に置いたように見せる。 */
+export function SlipPhoto({
+  photo,
+  className = "slip-photo",
+}: {
+  photo: { id: string; width: number; height: number };
+  className?: string;
+}) {
+  return (
+    <div className={className}>
+      {/* next/image は縦組みの中で扱いにくいので、素の img で置く */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`/i/${photo.id}`}
+        alt=""
+        width={photo.width}
+        height={photo.height}
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
   );
 }

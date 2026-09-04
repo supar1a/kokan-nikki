@@ -2,6 +2,9 @@
 //
 // 手番も宛先もない。誰かが思い出したときに書いて、誰かがたまに読む、という状態。
 // アカウントはないので、人は名前だけを持つ。
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -55,7 +58,10 @@ const SLIPS = [
   {
     who: "jiro",
     at: 5,
-    body: `古本屋、今日は開いてた。何も買わずに出た。`,
+    photo: true,
+    body: `古本屋、今日は開いてた。何も買わずに出た。
+
+貼り紙だけ撮った。`,
   },
   {
     // 下書き。書いた本人にしか見えない。
@@ -69,6 +75,7 @@ const SLIPS = [
 ];
 
 async function main() {
+  await prisma.photo.deleteMany();
   await prisma.slip.deleteMany();
   await prisma.membership.deleteMany();
   await prisma.session.deleteMany();
@@ -98,8 +105,11 @@ async function main() {
     },
   });
 
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const photoBytes = await readFile(path.join(here, "seed-photo.png"));
+
   for (const slip of SLIPS) {
-    await prisma.slip.create({
+    const created = await prisma.slip.create({
       data: {
         placeId: place.id,
         authorId: users[slip.who].id,
@@ -109,6 +119,17 @@ async function main() {
         updatedAt: at(slip.at),
       },
     });
+    if (slip.photo) {
+      await prisma.photo.create({
+        data: {
+          slipId: created.id,
+          data: photoBytes,
+          mimeType: "image/png",
+          width: 640,
+          height: 420,
+        },
+      });
+    }
   }
 
   console.log(

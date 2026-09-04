@@ -80,7 +80,25 @@ model Slip {
 
   place  Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
   author User  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  photo  Photo?
 
   @@index([placeId, createdAt])
   @@index([authorId])
+}
+
+/// 一枚だけ貼れる写真。
+///
+/// 実体を Slip に持たせると、巻物を出すたびに全員分のバイト列を引くことになる。
+/// 表を分けて、一覧では大きさだけを読む。
+model Photo {
+  id        String   @id @default(cuid())
+  slipId    String   @unique
+  data      Bytes
+  mimeType  String
+  /// 出す前から縦横比が分かるように控えておく（読み込みで組みが動かないように）
+  width     Int
+  height    Int
+  createdAt DateTime @default(now())
+
+  slip Slip @relation(fields: [slipId], references: [id], onDelete: Cascade)
 }
