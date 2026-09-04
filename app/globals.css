@@ -169,7 +169,9 @@ body::after {
   line-break: strict;
   word-break: normal;
   overflow-wrap: normal;
-  /* 縦組みの傍線は右に引く。日本語の組版としてこれが正しい。 */
+  /* 縦組みの傍線は右に引く。日本語の組版としてこれが正しい。
+     ただし効くのは text-decoration による下線だけで、
+     かな漢字変換中の下線には届かない（あれはブラウザが直に描いている）。 */
   text-underline-position: right;
 }
 
@@ -649,9 +651,6 @@ body::after {
 }
 
 .compose-body {
-  /* 縦組みの傍線は右に引く。変換中の下線がこれに従うかは、
-     手元のかな漢字変換で確かめてほしい（ヘッドレスの Chrome では再現できない）。 */
-  text-underline-position: right;
   /* 写真を挟んだときは、前と後ろで場を分け合う */
   flex: 1 1 0;
   min-width: 0;
@@ -1346,7 +1345,6 @@ a {
   -webkit-text-orientation: mixed;
   text-orientation: mixed;
   font-feature-settings: "vpal" 1, "vkrn" 1;
-  text-underline-position: right;
   line-break: strict;
   flex: 0 0 auto;
   width: calc(2.6em + clamp(0.8rem, 1.6vw, 1.6rem));
