@@ -224,6 +224,7 @@ components/        巻物の一枚・書く場・戸口・音まわり
 
 ## 公開する（Vercel）
 
+置き場は `github.com/supar1a/tsurezure`。
 GitHub に push すると Vercel が拾って公開しなおす。環境変数は二種類だけ。
 
 | 名前 | どこから |
@@ -233,6 +234,16 @@ GitHub に push すると Vercel が拾って公開しなおす。環境変数�
 環境変数はこれだけ。認証の鍵もメールの鍵も要らない。
 
 `npm run build` が `prisma migrate deploy` を先に走らせるので、表の移行は公開のたびに当たる。
+
+### 公開先の名前を変える
+
+`*.vercel.app` の名前は Vercel のプロジェクト名がそのまま出る。変えるには
+Vercel の画面で **Settings → General → Project Name** を書きかえる（CLI からなら
+`vercel login` のあと `vercel project rename`）。GitHub の置き場の名前とは別もので、
+置き場を変えても公開先は変わらない。
+
+なお、データベースの名前（ローカルの `kokan_nikki` と Neon 側）はそのままにしてある。
+外からは見えないうえ、両方を揃えることはできないので、変えても割に合わない。
 
 ### 自動で公開されないとき
 
