@@ -29,6 +29,7 @@ export default async function EditSlipPage({ params }: { params: Promise<{ id: s
         <Composer
           action={saveSlipAction}
           hidden={{ slipId: slip.id }}
+          defaultTitle={slip.title ?? ""}
           defaultBefore={before}
           defaultAfter={after}
           defaultPhoto={slip.photo}

@@ -30,13 +30,16 @@ export default async function SlipPage({ params }: { params: Promise<{ id: strin
         <div className="scroll-tate">
           <article className="sheet tate fade-in">
             <header className="sheet-head">
-              <PaperLink
-                href={`/b/${slip.place.slug}/by/${slip.author.id}`}
-                className="sheet-title"
-                voice="rustle"
-              >
-                {slip.author.name}
-              </PaperLink>
+              <div className="sheet-head-lead">
+                {slip.title ? <h1 className="sheet-title">{slip.title}</h1> : null}
+                <PaperLink
+                  href={`/b/${slip.place.slug}/by/${slip.author.id}`}
+                  className="sheet-who"
+                  voice="rustle"
+                >
+                  {slip.author.name}
+                </PaperLink>
+              </div>
               <div className="sheet-byline">
                 {!slip.published ? <span className="seal">下書き</span> : null}
                 <span>{kanjiDate(slip.createdAt)}</span>

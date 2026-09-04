@@ -169,6 +169,8 @@ body::after {
   line-break: strict;
   word-break: normal;
   overflow-wrap: normal;
+  /* 縦組みの傍線は右に引く。日本語の組版としてこれが正しい。 */
+  text-underline-position: right;
 }
 
 /* 一〜二桁の数字を正立させる（縦中横） */
@@ -647,6 +649,9 @@ body::after {
 }
 
 .compose-body {
+  /* 縦組みの傍線は右に引く。変換中の下線がこれに従うかは、
+     手元のかな漢字変換で確かめてほしい（ヘッドレスの Chrome では再現できない）。 */
+  text-underline-position: right;
   /* 写真を挟んだときは、前と後ろで場を分け合う */
   flex: 1 1 0;
   min-width: 0;
@@ -1332,4 +1337,140 @@ a {
   letter-spacing: 0.2em;
   color: var(--sumi-faint);
   white-space: nowrap;
+}
+
+/* 題。書く場のいちばん右に、一列ぶんだけ。 */
+.compose-title {
+  font-family: inherit;
+  writing-mode: vertical-rl;
+  -webkit-text-orientation: mixed;
+  text-orientation: mixed;
+  font-feature-settings: "vpal" 1, "vkrn" 1;
+  text-underline-position: right;
+  line-break: strict;
+  flex: 0 0 auto;
+  width: calc(2.6em + clamp(0.8rem, 1.6vw, 1.6rem));
+  height: 100%;
+  font-size: clamp(1.1rem, 1.5vw, 1.4rem);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  line-height: 1.9;
+  color: var(--sumi);
+  background: transparent;
+  border: 0;
+  border-left: 1px solid var(--rule-soft);
+  padding: 0 0 0 clamp(0.8rem, 1.6vw, 1.6rem);
+  outline: none;
+  resize: none;
+  border-radius: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.compose-title::-webkit-scrollbar {
+  display: none;
+}
+
+.compose-title::placeholder {
+  color: var(--sumi-ghost);
+}
+
+.compose-title:focus-visible {
+  outline: none;
+}
+
+.compose-shell:focus-within .compose-title {
+  border-left-color: var(--rule);
+}
+
+/* --------------------------------------------------------------------------
+   目次 — 一篇が一行。小説の目次のように、題が上、書き手と日付が下に落ちる。
+   -------------------------------------------------------------------------- */
+
+.contents {
+  display: flex;
+  flex-direction: column; /* 縦組みでは右から左へ */
+  align-items: stretch;
+  height: 100%;
+  padding: var(--air) var(--gutter);
+  gap: clamp(1.1rem, 1.8vw, 1.8rem);
+}
+
+.contents-title {
+  flex: 0 0 auto;
+  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  line-height: 1.7;
+  color: var(--sumi);
+  max-inline-size: 12em;
+  margin-block-end: clamp(1.6rem, 2.6vw, 2.8rem);
+  padding-block-end: clamp(1.6rem, 2.6vw, 2.8rem);
+  border-block-end: 1px solid var(--rule-soft);
+}
+
+.entry {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row; /* 縦組みでは上から下へ */
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.6rem;
+  inline-size: 100%;
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--quick) var(--ease);
+}
+
+.entry:hover .entry-title {
+  border-block-end-color: var(--rule);
+}
+
+.entry-title {
+  font-size: clamp(1rem, 1.25vw, 1.16rem);
+  letter-spacing: 0.18em;
+  line-height: 1.9;
+  color: var(--sumi);
+  max-inline-size: 100%;
+  overflow: hidden;
+  border-block-end: 1px solid transparent;
+  padding-block-end: 0.3em;
+  transition: border-color var(--quick) var(--ease);
+}
+
+.entry-meta {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1.1em;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: var(--sumi-faint);
+  white-space: nowrap;
+}
+
+/* 写真が入っている印 */
+.entry-mark {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--sumi-ghost);
+  border: 1px solid var(--rule);
+  border-radius: 1px;
+  padding: 0.4em 0.28em;
+  line-height: 1.5;
+}
+
+.sheet-head-lead {
+  display: flex;
+  flex-direction: column; /* 縦組みでは右から左へ */
+  gap: clamp(0.9rem, 1.6vw, 1.6rem);
+}
+
+.sheet-who {
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--sumi-soft);
+  text-decoration: none;
 }

@@ -47,9 +47,10 @@ export async function writeSlipAction(_prev: FormState, formData: FormData): Pro
   if (!body) return { error: "まだ何も書かれていません。" };
 
   const published = formData.get("intent") !== "draft";
+  const title = String(formData.get("title") ?? "").trim();
 
   const slip = await prisma.slip.create({
-    data: { placeId, authorId: user.id, body, published },
+    data: { placeId, authorId: user.id, title: title || null, body, published },
   });
   if (photo) {
     await prisma.photo.create({ data: { slipId: slip.id, ...photo } });
@@ -78,7 +79,11 @@ export async function saveSlipAction(_prev: FormState, formData: FormData): Prom
 
   const published = formData.get("intent") === "draft" ? false : slip.published;
 
-  await prisma.slip.update({ where: { id: slipId }, data: { body, published } });
+  const title = String(formData.get("title") ?? "").trim();
+  await prisma.slip.update({
+    where: { id: slipId },
+    data: { title: title || null, body, published },
+  });
 
   // 貼り直したときは、古いほうを消してから入れ替える
   if (photo || removed) {

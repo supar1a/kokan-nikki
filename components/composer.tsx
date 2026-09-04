@@ -9,6 +9,8 @@ type Attached = { url: string; width: number; height: number; local: boolean };
 type Props = {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   hidden: Record<string, string>;
+  /** 題（無くてよい） */
+  defaultTitle?: string;
   /** 写真より前の本文 */
   defaultBefore?: string;
   /** 写真より後ろの本文 */
@@ -34,6 +36,7 @@ const QUALITY = 0.82;
 export function Composer({
   action,
   hidden,
+  defaultTitle = "",
   defaultBefore = "",
   defaultAfter = "",
   defaultPhoto = null,
@@ -181,6 +184,24 @@ export function Composer({
 
       <div className="compose-shell">
         <textarea
+          name="title"
+          className="compose-title"
+          placeholder="題（なくてよい）"
+          defaultValue={defaultTitle}
+          maxLength={40}
+          rows={1}
+          spellCheck={false}
+          onKeyDown={(event) => {
+            // 題は一行きり。改行では送らない。
+            if (event.key === "Enter" && !event.metaKey && !event.ctrlKey) {
+              event.preventDefault();
+              return;
+            }
+            onKeyDown(event);
+          }}
+        />
+
+        <textarea
           ref={beforeRef}
           name="bodyBefore"
           className="compose-body"
@@ -232,7 +253,7 @@ export function Composer({
           disabled={pending}
           onClick={() => play("ink")}
         >
-          {published ? "保存する" : "投稿する"}
+          {published ? "保存する" : "書き残す"}
         </button>
 
         <button

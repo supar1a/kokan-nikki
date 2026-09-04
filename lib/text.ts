@@ -24,6 +24,7 @@ export function countChars(body: string) {
  */
 export const PHOTO_MARK = "［写真］";
 const PHOTO_MARK_RE = /［写真］|\[写真\]/;
+const PHOTO_MARK_ANY = /［写真］|\[写真\]/g;
 
 export function hasPhotoMark(body: string) {
   return PHOTO_MARK_RE.test(body);
@@ -51,4 +52,25 @@ export function composeBody(before: string, after: string, withPhoto: boolean) {
     .map((part) => part.trim())
     .filter(Boolean)
     .join("\n\n");
+}
+
+/**
+ * 目次に出す見出し。
+ * 題を付けていなければ、本文の一行目を借りる。書き散らしに題を強いないため。
+ */
+export function headingOf(slip: { title: string | null; body: string }, max = 18) {
+  const named = slip.title?.trim();
+  if (named) return named;
+
+  const first = slip.body
+    .split("\n")
+    .map((line) => line.replace(PHOTO_MARK_ANY, "").trim())
+    .find(Boolean);
+  if (!first) return "（写真だけ）";
+
+  // 題の代わりなので、目次の中で長さが揃うところまで詰める。
+  // 一文で切れるならそこで切り、長すぎれば落とす。
+  const stop = first.indexOf("。");
+  const sentence = stop >= 0 && stop + 1 <= max ? first.slice(0, stop + 1) : first;
+  return sentence.length > max ? sentence.slice(0, max) + "…" : sentence;
 }

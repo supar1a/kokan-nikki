@@ -70,6 +70,8 @@ model Slip {
   id        String   @id @default(cuid())
   placeId   String
   authorId  String
+  /// 題。無くてよい。目次に出すときは、無ければ本文の一行目を借りる。
+  title     String?
   body      String
   /// 公開しているか。下書きは書いた本人にだけ見える。
   published Boolean  @default(false)

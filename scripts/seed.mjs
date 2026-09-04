@@ -23,6 +23,7 @@ const SLIPS = [
   {
     who: "hanako",
     at: 76,
+    title: "雨の匂い",
     body: `窓をすこし開けたら、雨のはじまりの匂いがした。アスファルトが濡れる、あの少し埃っぽい匂い。
 
 こういうのを書きとめておく場所がほしかった。日記というほど整っていなくていいし、誰かに読ませるつもりもない。ただ、置いておける紙が。`,
@@ -44,6 +45,7 @@ const SLIPS = [
   {
     who: "hanako",
     at: 30,
+    title: "三日ぶんの珈琲",
     body: `豆を切らしていたので、三日ぶんまとめて挽いた。台所じゅうに匂いが立って、それだけで一日が始まった気がする。
 
 朝にきちんと始まりがあるのは、思っていたよりずっと大事なことだった。SNSに書くと丁寧な暮らしみたいになるから書かないけど、本当はもっと切実な話で、そうしないと一日が始まらない。`,
@@ -51,6 +53,7 @@ const SLIPS = [
   {
     who: "taro",
     at: 14,
+    title: "二時間",
     body: `人と会ったあと、必ず二時間くらい、何も手につかない時間がある。
 
 嫌だったわけじゃない。むしろ楽しかった日のほうが長い。あれは何なんだろう。`,
@@ -114,6 +117,7 @@ async function main() {
       data: {
         placeId: place.id,
         authorId: users[slip.who].id,
+        title: slip.title ?? null,
         body: slip.body,
         published: !slip.draft,
         createdAt: at(slip.at),

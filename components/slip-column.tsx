@@ -4,6 +4,7 @@ import { PaperLink } from "./paper-link";
 
 export type SlipRow = {
   id: string;
+  title: string | null;
   body: string;
   published: boolean;
   createdAt: Date;
