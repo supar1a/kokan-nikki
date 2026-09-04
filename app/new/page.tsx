@@ -4,7 +4,7 @@ import { Masthead } from "@/components/masthead";
 import { PaperLink } from "@/components/paper-link";
 import { CreatePlaceForm } from "@/components/place-forms";
 
-export const metadata = { title: "グループを作る — 短冊" };
+export const metadata = { title: "グループを作る — つれづれ" };
 
 export default async function NewPlacePage() {
   await requireUser();

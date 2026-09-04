@@ -3,7 +3,7 @@ import "./globals.css";
 import { SoundProvider } from "@/components/sound-provider";
 
 export const metadata: Metadata = {
-  title: "短冊",
+  title: "つれづれ",
   description: "仲間うちだけの、縦書きの書き散らし。",
 };
 

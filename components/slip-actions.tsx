@@ -28,7 +28,7 @@ export function DeleteSlip({ slipId }: { slipId: string }) {
     <form
       action={deleteSlipAction}
       onSubmit={(event) => {
-        if (!window.confirm("この短冊を削除します。写真も一緒に消えます。もとには戻せません。")) {
+        if (!window.confirm("この投稿を削除します。写真も一緒に消えます。もとには戻せません。")) {
           event.preventDefault();
           return;
         }

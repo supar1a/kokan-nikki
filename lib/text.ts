@@ -32,7 +32,7 @@ export function hasPhotoMark(body: string) {
 
 /**
  * 印のあるところで本文を二つに割る。
- * 印が無ければ、写真は本文より前に置く（印を持たない古い短冊のため）。
+ * 印が無ければ、写真は本文より前に置く（印を持たない古い投稿のため）。
  */
 export function splitAroundPhoto(body: string) {
   const found = PHOTO_MARK_RE.exec(body);

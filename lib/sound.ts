@@ -55,7 +55,7 @@ export function unlockAudio() {
 
 /* --- 消音の状態。React の外に置き、useSyncExternalStore から読む --- */
 
-const MUTE_KEY = "kokan-nikki.muted";
+const MUTE_KEY = "tsurezure.muted";
 const muteListeners = new Set<() => void>();
 let muteCache: boolean | null = null;
 

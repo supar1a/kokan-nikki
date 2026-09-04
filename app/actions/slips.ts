@@ -18,15 +18,15 @@ async function requireMember(placeId: string) {
   return user;
 }
 
-/** 自分の短冊は、いつでも編集・削除できる。 */
+/** 自分の投稿は、いつでも編集・削除できる。 */
 async function requireOwnSlip(slipId: string) {
   const user = await requireUser();
   const slip = await prisma.slip.findUnique({
     where: { id: slipId },
     include: { place: true },
   });
-  if (!slip) throw new Error("その短冊はありません。");
-  if (slip.authorId !== user.id) throw new Error("その短冊はあなたのものではありません。");
+  if (!slip) throw new Error("その投稿はありません。");
+  if (slip.authorId !== user.id) throw new Error("その投稿はあなたのものではありません。");
   return { user, slip };
 }
 

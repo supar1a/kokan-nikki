@@ -4,7 +4,7 @@ import { Masthead } from "@/components/masthead";
 import { PaperLink } from "@/components/paper-link";
 import { Composer } from "@/components/composer";
 
-export const metadata = { title: "書く — 短冊" };
+export const metadata = { title: "書く — つれづれ" };
 
 export default async function WritePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

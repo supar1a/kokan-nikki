@@ -33,7 +33,7 @@ export async function requirePlace(slug: string) {
 }
 
 /**
- * 読める短冊を、古い順に（縦組みでは右から左へ流れる向き）。
+ * 読める投稿を、古い順に（縦組みでは右から左へ流れる向き）。
  * 下書きは、書いた本人にだけ見える。
  */
 export async function readableSlips(

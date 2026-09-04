@@ -72,7 +72,7 @@ export function LeavePlace({ placeId }: { placeId: string }) {
     <form
       action={leavePlaceAction}
       onSubmit={(event) => {
-        if (!window.confirm("このグループを抜けます。書いた短冊は残ります。")) {
+        if (!window.confirm("このグループを抜けます。書いたものは残ります。")) {
           event.preventDefault();
           return;
         }

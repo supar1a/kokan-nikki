@@ -12,7 +12,7 @@ export function Masthead({
     <>
       <header className="masthead">
         <PaperLink href="/" className="masthead-title">
-          短冊
+          つれづれ
         </PaperLink>
         {sub ? <span className="masthead-sub">{sub}</span> : null}
         <nav className="masthead-nav">
