@@ -1394,8 +1394,8 @@ a {
   align-items: stretch;
   height: 100%;
   padding: var(--air) var(--gutter);
-  /* 目次は一篇が一行なので、行間を広めに取って読みやすくする */
-  gap: clamp(2.1rem, 3.3vw, 3.6rem);
+  /* 目次は一篇が一行。ひと続きに見えるよう、行間はしっかり取る */
+  gap: clamp(3.2rem, 4.8vw, 5.4rem);
 }
 
 .contents-title {
@@ -1421,12 +1421,34 @@ a {
 .entry-summary {
   display: flex;
   flex-direction: row; /* 縦組みでは上から下へ */
-  justify-content: space-between;
   align-items: flex-start;
-  gap: 1.6rem;
+  gap: 1.1rem;
   inline-size: 100%;
   list-style: none;
   cursor: pointer;
+}
+
+/*
+ * 目次のリーダー。
+ * 見出しは列の上、名前と日付は列の下にあるので、そのままでは同じ一篇だと
+ * 結びつかない。点線で繋いで、ひと続きの一行として読めるようにする。
+ */
+.entry-leader {
+  flex: 1 1 auto;
+  block-size: 1px;
+  min-inline-size: 1.5em;
+  align-self: center;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--sumi-ghost) 0 1.5px,
+    transparent 1.5px 6px
+  );
+  opacity: 0.55;
+  transition: opacity var(--quick) var(--ease);
+}
+
+.entry-summary:hover .entry-leader {
+  opacity: 0.9;
 }
 
 .entry-summary::-webkit-details-marker,

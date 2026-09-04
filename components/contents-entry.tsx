@@ -38,6 +38,9 @@ export function ContentsEntry({
           {headingOf(slip)}
         </span>
 
+        {/* 目次のリーダー。上の見出しと下の名前を繋いで、一篇をひと続きに見せる。 */}
+        <span className="entry-leader" aria-hidden="true" />
+
         <span className="entry-meta">
           {!slip.published ? <span className="seal">下書き</span> : null}
           {mine ? <span className="slip-mine">じぶん</span> : null}
