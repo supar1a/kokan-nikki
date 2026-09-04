@@ -43,3 +43,12 @@ export function splitAroundPhoto(body: string) {
     after: strip(body.slice(found.index + found[0].length)).trimStart(),
   };
 }
+
+/** 前・写真・後ろ を、一本の本文に戻す。 */
+export function composeBody(before: string, after: string, withPhoto: boolean) {
+  const parts = withPhoto ? [before, PHOTO_MARK, after] : [before, after];
+  return parts
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join("\n\n");
+}

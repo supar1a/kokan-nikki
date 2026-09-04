@@ -13,7 +13,7 @@ export default async function MePage() {
     <>
       <Masthead>
         <PaperLink href="/" className="masthead-link">
-          グループ
+          入っているグループ
         </PaperLink>
       </Masthead>
 

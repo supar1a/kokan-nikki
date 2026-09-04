@@ -1,18 +1,17 @@
 import { Fragment } from "react";
 import { prisma } from "@/lib/db";
 import { openPlace, readableSlips } from "@/lib/guards";
-import { readingMark } from "@/lib/place";
+import { unreadMarkAt } from "@/lib/place";
 import { joinAction } from "@/app/actions/identity";
 import { Masthead } from "@/components/masthead";
 import { PaperLink } from "@/components/paper-link";
 import { SlipColumn } from "@/components/slip-column";
 import { MarkAsRead } from "@/components/mark-as-read";
-import { OpenWhereLeftOff } from "@/components/open-where-left-off";
+import { OpenAtLatest } from "@/components/open-at-latest";
 import { GateMark } from "@/components/gate-mark";
 import { JoinAsMe, PickMe, StartForm } from "@/components/identity-forms";
 
 const SCROLLER = "scroller";
-const MARK = "unread-mark";
 
 export default async function PlacePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -62,7 +61,7 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
 
   // 古い順。縦組みでは、右から左へ流れる向きになる。
   const slips = await readableSlips(place.id, user!.id);
-  const mark = readingMark(slips, membership.lastReadAt);
+  const unreadAt = unreadMarkAt(slips, membership.lastReadAt);
 
   return (
     <div className="app">
@@ -74,7 +73,7 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
           メンバー
         </PaperLink>
         <PaperLink href="/" className="masthead-link">
-          グループ
+          入っているグループ
         </PaperLink>
       </Masthead>
 
@@ -93,8 +92,8 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
 
             {slips.map((slip, index) => (
               <Fragment key={slip.id}>
-                {index === mark.at ? (
-                  <div className="unread-mark" id={MARK}>
+                {index === unreadAt ? (
+                  <div className="unread-mark">
                     <span className="unread-mark-label">ここから未読</span>
                   </div>
                 ) : null}
@@ -114,7 +113,7 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
           </div>
         </div>
 
-        <OpenWhereLeftOff scrollerId={SCROLLER} markId={MARK} landing={mark.land} />
+        <OpenAtLatest scrollerId={SCROLLER} />
       </div>
 
       <MarkAsRead placeId={place.id} />

@@ -4,6 +4,7 @@ import { requirePlace, readableSlips } from "@/lib/guards";
 import { Masthead } from "@/components/masthead";
 import { PaperLink } from "@/components/paper-link";
 import { SlipColumn } from "@/components/slip-column";
+import { OpenAtLatest } from "@/components/open-at-latest";
 
 /** その人が書いたものだけを続けて読む。相手を少し知るための入口。 */
 export default async function ByPersonPage({
@@ -32,8 +33,8 @@ export default async function ByPersonPage({
       </Masthead>
 
       <div className="stage">
-        <div className="scroll-tate">
-          <div className="stream tate fade-in">
+        <div className="scroll-tate" id="scroller">
+          <div className="stream tate fade-in" data-stream>
             {slips.length === 0 ? (
               <p className="waiting">{name}さんは、まだ何も書いていません。</p>
             ) : (
@@ -41,6 +42,8 @@ export default async function ByPersonPage({
             )}
           </div>
         </div>
+
+        <OpenAtLatest scrollerId="scroller" />
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { saveSlipAction } from "@/app/actions/slips";
 import { Masthead } from "@/components/masthead";
 import { PaperLink } from "@/components/paper-link";
 import { Composer } from "@/components/composer";
+import { splitAroundPhoto } from "@/lib/text";
 
 export const metadata = { title: "編集 — 短冊" };
 
@@ -11,6 +12,10 @@ export default async function EditSlipPage({ params }: { params: Promise<{ id: s
   const { id } = await params;
   const { slip, isAuthor } = await requireReadableSlip(id);
   if (!isAuthor) notFound();
+
+  const { before, after } = slip.photo
+    ? splitAroundPhoto(slip.body)
+    : { before: slip.body, after: "" };
 
   return (
     <div className="app">
@@ -24,7 +29,8 @@ export default async function EditSlipPage({ params }: { params: Promise<{ id: s
         <Composer
           action={saveSlipAction}
           hidden={{ slipId: slip.id }}
-          defaultBody={slip.body}
+          defaultBefore={before}
+          defaultAfter={after}
           defaultPhoto={slip.photo}
           published={slip.published}
         />

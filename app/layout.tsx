@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import "./globals.css";
 import { SoundProvider } from "@/components/sound-provider";
@@ -13,6 +14,28 @@ export const viewport = {
   initialScale: 1,
 };
 
+/**
+ * 紙の地は、開くたびに違う種から漉く。
+ * feTurbulence の seed を変えるだけなので、絵を持たずに済む。
+ */
+function noise(seed: number, frequency: string, octaves: number, size: number) {
+  const svg =
+    `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'>` +
+    `<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='${frequency}'` +
+    ` numOctaves='${octaves}' seed='${seed}' stitchTiles='stitch'/>` +
+    `<feColorMatrix type='saturate' values='0'/></filter>` +
+    `<rect width='${size}' height='${size}' filter='url(%23n)'/></svg>`;
+  return `url("data:image/svg+xml,${svg.replace(/</g, "%3C").replace(/>/g, "%3E").replace(/#/g, "%23")}")`;
+}
+
+function paper(): CSSProperties {
+  const seed = () => Math.floor(Math.random() * 9999);
+  return {
+    "--paper-grain": noise(seed(), "0.85", 4, 260),
+    "--paper-mottle": noise(seed(), "0.045", 2, 600),
+  } as CSSProperties;
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
@@ -26,7 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body>
+      <body style={paper()}>
         <SoundProvider>{children}</SoundProvider>
       </body>
     </html>

@@ -59,19 +59,72 @@ body {
    紙 — 粗い繊維、雲のような濃淡、四隅の翳り。三枚重ねて漉く。
    -------------------------------------------------------------------------- */
 
+/*
+ * 紙の地。
+ *
+ * 粒と斑は、それぞれ別の速さでゆっくり流れる。動かすのは transform と opacity だけで、
+ * どちらも描き直しを伴わない（背景の位置を動かすと毎コマ描き直しになるので使わない）。
+ * 層は画面より広く取り、ちょうどタイル一つぶん動かして、継ぎ目が出ないようにしてある。
+ *
+ * 模様そのものは、開くたびに違う種から作られる（layout.tsx で撒いている）。
+ */
 body::before,
 body::after {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+
+/* 四隅の翳りだけは、画面に貼り付いたまま動かさない */
+html::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
+  background-image: radial-gradient(
+    120% 95% at 50% 45%,
+    transparent 62%,
+    rgba(94, 78, 56, 0.07) 100%
+  );
+  mix-blend-mode: multiply;
+}
+
+@keyframes paper-grain-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-260px, -260px, 0);
+  }
+}
+
+@keyframes paper-mottle-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(600px, -600px, 0);
+  }
+}
+
+/* 光の当たりぐあいが、ゆっくり変わる */
+@keyframes paper-light {
+  from {
+    opacity: 0.1;
+  }
+  to {
+    opacity: 0.2;
+  }
 }
 
 /* 細かな粒子と、紙の繊維の流れ */
 body::before {
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)'/%3E%3C/svg%3E"),
+    var(--paper-grain),
     repeating-linear-gradient(
       97deg,
       rgba(120, 104, 82, 0.028) 0px,
@@ -89,16 +142,19 @@ body::before {
   background-size: 260px 260px, auto, auto;
   opacity: 0.34;
   mix-blend-mode: multiply;
+  animation: paper-grain-drift 240s linear infinite;
 }
 
-/* 漉きむらと、周縁の翳り */
+/* 漉きむら */
 body::after {
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23c)'/%3E%3C/svg%3E"),
-    radial-gradient(120% 95% at 50% 45%, transparent 62%, rgba(94, 78, 56, 0.07) 100%);
-  background-size: 600px 600px, auto;
+  background-image: var(--paper-mottle);
+  background-size: 600px 600px;
   opacity: 0.16;
   mix-blend-mode: multiply;
+  animation:
+    paper-mottle-drift 420s linear infinite,
+    paper-light 96s ease-in-out infinite alternate;
+  will-change: transform, opacity;
 }
 
 /* --------------------------------------------------------------------------
@@ -559,7 +615,7 @@ body::after {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
-  flex-direction: row-reverse; /* 題を右端に置く */
+  flex-direction: row-reverse; /* 縦組みの読み順に合わせて、右から左へ */
   align-items: stretch;
   gap: clamp(1rem, 2vw, 1.8rem);
 }
@@ -581,7 +637,8 @@ body::after {
 }
 
 .compose-body {
-  flex: 1 1 auto;
+  /* 写真を挟んだときは、前と後ろで場を分け合う */
+  flex: 1 1 0;
   min-width: 0;
   height: 100%;
   font-size: clamp(0.98rem, 1.15vw, 1.08rem);
@@ -847,6 +904,13 @@ a {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+
+  /* 紙の地は、動かさずに置いたままにする */
+  body::before,
+  body::after {
+    animation: none !important;
+    transform: none !important;
+  }
 }
 
 @media (max-width: 640px) {
@@ -909,7 +973,6 @@ a {
     letter-spacing: 0.12em;
     padding: 0.7em 1.1em;
   }
-
 
   .gate-inner {
     flex-direction: column;
@@ -1231,13 +1294,6 @@ a {
   width: 100%;
 }
 
-.compose-shortcut {
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  color: var(--sumi-ghost);
-  white-space: nowrap;
-}
-
 /* --------------------------------------------------------------------------
    名乗り直し — クッキーを失った人が、自分を選び直す
    -------------------------------------------------------------------------- */
@@ -1325,35 +1381,32 @@ a {
   max-width: clamp(14rem, 26vw, 24rem);
 }
 
-/* 書く画面の足元に置く控え */
+/* 書く場に挟まる、そのものの写真。出るときと同じ姿で置く。 */
 .compose-photo {
-  display: inline-flex;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 0.7rem;
+  min-width: 0;
 }
 
 .compose-photo img {
   display: block;
   width: auto;
-  height: 2.6rem;
-  max-width: 5rem;
-  object-fit: cover;
-  border: 1px solid var(--rule);
+  height: auto;
+  max-height: calc(100% - 2.6rem);
+  max-width: clamp(10rem, 20vw, 18rem);
+  border: 1px solid var(--rule-soft);
   background-color: var(--washi-lit);
+  box-shadow: 0 1px 12px rgba(94, 78, 56, 0.08);
 }
 
-.compose-photo .btn {
+.compose-photo-off {
   font-size: 0.72rem;
   letter-spacing: 0.1em;
-  padding-inline: 0.5em;
+  padding-inline: 0.6em;
   color: var(--sumi-ghost);
-}
-
-.compose-photo-hint {
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  color: var(--sumi-ghost);
-  white-space: nowrap;
 }
 
 /* グループの札の中は、上から順に置く（巻物の頭のように離さない） */

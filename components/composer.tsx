@@ -1,16 +1,18 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useSound } from "./sound-provider";
-import { PHOTO_MARK, hasPhotoMark } from "@/lib/text";
 import type { FormState } from "@/app/actions/slips";
 
-type Photo = { url: string; width: number; height: number; local: boolean };
+type Attached = { url: string; width: number; height: number; local: boolean };
 
 type Props = {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   hidden: Record<string, string>;
-  defaultBody?: string;
+  /** 写真より前の本文 */
+  defaultBefore?: string;
+  /** 写真より後ろの本文 */
+  defaultAfter?: string;
   /** すでに貼ってある一枚（書き直しのとき） */
   defaultPhoto?: { id: string; width: number; height: number } | null;
   /** すでに公開しているものを編集しているとき */
@@ -22,29 +24,46 @@ type Props = {
 const MAX_SIDE = 1600;
 const QUALITY = 0.82;
 
+/**
+ * 書く場。
+ *
+ * 写真は印ではなく、そのものが本文のあいだに挟まる。
+ * 貼るとカーソルのところで本文が二つに割れ、そこに写真が入る。
+ * 外すとまた一つにつながる。目に見えているとおりに出る。
+ */
 export function Composer({
   action,
   hidden,
-  defaultBody = "",
+  defaultBefore = "",
+  defaultAfter = "",
   defaultPhoto = null,
   published = false,
   cancel,
 }: Props) {
   const [state, formAction, pending] = useActionState(action, null);
-  const [count, setCount] = useState(() => countChars(defaultBody));
-  const [photo, setPhoto] = useState<Photo | null>(
+  const [photo, setPhoto] = useState<Attached | null>(
     defaultPhoto
-      ? { url: `/i/${defaultPhoto.id}`, width: defaultPhoto.width, height: defaultPhoto.height, local: false }
+      ? {
+          url: `/i/${defaultPhoto.id}`,
+          width: defaultPhoto.width,
+          height: defaultPhoto.height,
+          local: false,
+        }
       : null,
   );
+  const [afterSeed, setAfterSeed] = useState(defaultAfter);
+  const [afterKey, setAfterKey] = useState(0);
+  const [count, setCount] = useState(() => countChars(defaultBefore + defaultAfter));
   const [trouble, setTrouble] = useState<string | null>(null);
+
   const { play } = useSound();
   const lastStroke = useRef(0);
   const formRef = useRef<HTMLFormElement>(null);
-  const bodyRef = useRef<HTMLTextAreaElement>(null);
   const submitRef = useRef<HTMLButtonElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const isMac = useSyncExternalStore(subscribeNothing, readIsMac, () => false);
+  const beforeRef = useRef<HTMLTextAreaElement>(null);
+  const afterRef = useRef<HTMLTextAreaElement>(null);
+  const justPasted = useRef(false);
 
   // 見せている間だけの URL なので、置き換わったら手放す
   useEffect(() => {
@@ -52,6 +71,20 @@ export function Composer({
       if (photo?.local) URL.revokeObjectURL(photo.url);
     };
   }, [photo]);
+
+  // 貼ったあとは、写真の続きから書けるようにする
+  useEffect(() => {
+    if (!justPasted.current) return;
+    justPasted.current = false;
+    const el = afterRef.current;
+    if (!el) return;
+    el.focus();
+    el.setSelectionRange(0, 0);
+  }, [afterKey]);
+
+  function tally() {
+    setCount(countChars((beforeRef.current?.value ?? "") + (afterRef.current?.value ?? "")));
+  }
 
   function onKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
     // ⌘/Ctrl + Enter で送る。
@@ -74,13 +107,17 @@ export function Composer({
   }
 
   /** 写真は貼り付けでだけ入る。文字の貼り付けは邪魔しない。 */
-  async function onPaste(event: React.ClipboardEvent) {
+  async function onPaste(event: React.ClipboardEvent<HTMLTextAreaElement>) {
     const item = [...event.clipboardData.items].find((i) => i.type.startsWith("image/"));
     if (!item) return;
 
     event.preventDefault();
     const file = item.getAsFile();
     if (!file) return;
+
+    // currentTarget は配信のあいだしか生きていない。待つ前に掴んでおく。
+    const target = event.currentTarget;
+    const caret = target.selectionStart ?? target.value.length;
 
     setTrouble(null);
     try {
@@ -92,8 +129,14 @@ export function Composer({
       carrier.items.add(new File([shrunk.blob], "photo.jpg", { type: "image/jpeg" }));
       input.files = carrier.files;
 
-      // いま書いている場所に印を置く。写真はそこに入る。
-      putMark();
+      // まだ写真がなければ、いま書いているところで本文を割る
+      if (!photo) {
+        const tail = target.value.slice(caret);
+        target.value = target.value.slice(0, caret);
+        setAfterSeed(tail);
+        setAfterKey((n) => n + 1);
+        justPasted.current = true;
+      }
 
       if (photo?.local) URL.revokeObjectURL(photo.url);
       setPhoto({
@@ -108,43 +151,22 @@ export function Composer({
     }
   }
 
-  /** カーソルのところに印を置く。すでに置いてあれば動かさない。 */
-  function putMark() {
-    const el = bodyRef.current;
-    if (!el || hasPhotoMark(el.value)) return;
-
-    const start = el.selectionStart ?? el.value.length;
-    const end = el.selectionEnd ?? start;
-    const before = el.value.slice(0, start);
-    const after = el.value.slice(end);
-
-    // 文の途中に割り込んだときは、前後を改行で空ける
-    const lead = before && !before.endsWith("\n") ? "\n" : "";
-    const tail = after && !after.startsWith("\n") ? "\n" : "";
-    const inserted = lead + PHOTO_MARK + tail;
-
-    el.value = before + inserted + after;
-    const caret = start + inserted.length;
-    el.setSelectionRange(caret, caret);
-    el.focus();
-    setCount(countChars(el.value));
-  }
-
-  function takeMark() {
-    const el = bodyRef.current;
-    if (!el) return;
-    el.value = el.value
-      .replace(/[\n]?(［写真］|\[写真\])[\n]?/g, "\n")
-      .replace(/\n{3,}/g, "\n\n");
-    setCount(countChars(el.value));
-  }
-
+  /** 外すと、割れていた本文がまたつながる。 */
   function detach() {
     if (fileRef.current) fileRef.current.value = "";
+
+    const head = beforeRef.current?.value ?? "";
+    const tail = afterRef.current?.value ?? "";
+    if (beforeRef.current) {
+      beforeRef.current.value = [head.trimEnd(), tail.trimStart()].filter(Boolean).join("\n\n");
+    }
+
     if (photo?.local) URL.revokeObjectURL(photo.url);
     setPhoto(null);
-    takeMark();
+    setAfterSeed("");
+    tally();
     play("turn");
+    beforeRef.current?.focus();
   }
 
   return (
@@ -159,17 +181,42 @@ export function Composer({
 
       <div className="compose-shell">
         <textarea
-          ref={bodyRef}
-          name="body"
+          ref={beforeRef}
+          name="bodyBefore"
           className="compose-body"
           placeholder="ここから、書く。"
-          defaultValue={defaultBody}
+          defaultValue={defaultBefore}
           autoFocus
           spellCheck={false}
           onKeyDown={onKeyDown}
           onPaste={onPaste}
-          onChange={(event) => setCount(countChars(event.target.value))}
+          onChange={tally}
         />
+
+        {photo ? (
+          <>
+            <div className="compose-photo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photo.url} alt="" width={photo.width} height={photo.height} />
+              <button type="button" className="btn btn-quiet compose-photo-off" onClick={detach}>
+                外す
+              </button>
+            </div>
+
+            <textarea
+              key={afterKey}
+              ref={afterRef}
+              name="bodyAfter"
+              className="compose-body"
+              placeholder="つづき"
+              defaultValue={afterSeed}
+              spellCheck={false}
+              onKeyDown={onKeyDown}
+              onPaste={onPaste}
+              onChange={tally}
+            />
+          </>
+        ) : null}
       </div>
 
       {state?.error ? <p className="notice">{state.error}</p> : null}
@@ -188,8 +235,6 @@ export function Composer({
           {published ? "保存する" : "投稿する"}
         </button>
 
-        <span className="compose-shortcut">{isMac ? "⌘" : "Ctrl"} + Enter</span>
-
         <button
           type="submit"
           name="intent"
@@ -202,18 +247,6 @@ export function Composer({
         </button>
 
         {cancel}
-
-        {photo ? (
-          <span className="compose-photo">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photo.url} alt="" width={photo.width} height={photo.height} />
-            <button type="button" className="btn btn-quiet" onClick={detach}>
-              外す
-            </button>
-          </span>
-        ) : (
-          <span className="compose-photo-hint">写真は、貼り付けたところに入ります</span>
-        )}
 
         <span className="compose-count">{count > 0 ? `${count}字` : "　"}</span>
       </div>
@@ -246,13 +279,4 @@ async function shrink(file: File) {
 
 function countChars(value: string) {
   return [...value.replace(/\s/g, "")].length;
-}
-
-// 打ち手の環境でしか分からないので、描き直しの合図は要らない
-function subscribeNothing() {
-  return () => {};
-}
-
-function readIsMac() {
-  return /Mac|iPhone|iPad/i.test(navigator.userAgent);
 }

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { readPhoto } from "@/lib/photo";
+import { composeBody } from "@/lib/text";
 
 export type FormState = { error?: string } | null;
 
@@ -33,13 +34,18 @@ export async function writeSlipAction(_prev: FormState, formData: FormData): Pro
   const placeId = String(formData.get("placeId") ?? "");
   const user = await requireMember(placeId);
 
-  const body = String(formData.get("body") ?? "").trim();
-  if (!body) return { error: "まだ何も書かれていません。" };
-
   const place = await prisma.place.findUnique({ where: { id: placeId } });
   if (!place) throw new Error("そのグループはありません。");
 
+  // 写真は本文の途中に挟まるので、前と後ろに分かれて届く
   const photo = await readPhoto(formData);
+  const body = composeBody(
+    String(formData.get("bodyBefore") ?? ""),
+    String(formData.get("bodyAfter") ?? ""),
+    Boolean(photo),
+  );
+  if (!body) return { error: "まだ何も書かれていません。" };
+
   const published = formData.get("intent") !== "draft";
 
   const slip = await prisma.slip.create({
@@ -57,12 +63,20 @@ export async function saveSlipAction(_prev: FormState, formData: FormData): Prom
   const slipId = String(formData.get("slipId") ?? "");
   const { slip } = await requireOwnSlip(slipId);
 
-  const body = String(formData.get("body") ?? "").trim();
+  const photo = await readPhoto(formData);
+  const removed = formData.get("photoRemove") === "1";
+  const kept = await prisma.photo.findUnique({ where: { slipId }, select: { id: true } });
+
+  // 印を入れてよいのは、実際に写真が残るときだけ
+  const willHavePhoto = Boolean(photo) || (Boolean(kept) && !removed);
+  const body = composeBody(
+    String(formData.get("bodyBefore") ?? ""),
+    String(formData.get("bodyAfter") ?? ""),
+    willHavePhoto,
+  );
   if (!body) return { error: "まだ何も書かれていません。" };
 
   const published = formData.get("intent") === "draft" ? false : slip.published;
-  const photo = await readPhoto(formData);
-  const removed = formData.get("photoRemove") === "1";
 
   await prisma.slip.update({ where: { id: slipId }, data: { body, published } });
 

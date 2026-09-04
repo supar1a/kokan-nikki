@@ -14,7 +14,7 @@ export default async function NewPlacePage() {
     <>
       <Masthead>
         <PaperLink href="/" className="masthead-link">
-          グループ
+          入っているグループ
         </PaperLink>
       </Masthead>
 
