@@ -1366,6 +1366,13 @@ a {
    写真 — 一枚だけ。紙に置いたように、行の高さに収める。
    -------------------------------------------------------------------------- */
 
+/*
+ * 写真も、段落の一字下げに揃える。
+ *
+ * 縦組みでは inline-start が「上」なので、そこに一字ぶんの余白を置く。
+ * 一字の幅は本文の字送りで決まるから、font-size を本文に合わせておく
+ * （そうしておけば、字下げのある段落にも無い段落にも同じだけ下がる）。
+ */
 .slip-photo,
 .sheet-photo {
   display: flex;
@@ -1373,6 +1380,16 @@ a {
   flex: 0 0 auto;
   /* 本文の途中に割り込むので、前後を少し空ける */
   margin-block: clamp(0.4rem, 0.8vw, 0.9rem);
+}
+
+.slip-photo {
+  font-size: clamp(0.95rem, 1.1vw, 1.04rem);
+  padding-inline-start: 1em;
+}
+
+.sheet-photo {
+  font-size: clamp(0.98rem, 1.15vw, 1.08rem);
+  padding-inline-start: 1em;
 }
 
 .slip-photo img,

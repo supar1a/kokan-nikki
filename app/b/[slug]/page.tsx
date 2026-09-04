@@ -9,7 +9,7 @@ import { SlipColumn } from "@/components/slip-column";
 import { MarkAsRead } from "@/components/mark-as-read";
 import { OpenAtLatest } from "@/components/open-at-latest";
 import { GateMark } from "@/components/gate-mark";
-import { JoinAsMe, PickMe, StartForm } from "@/components/identity-forms";
+import { JoinAsMe, NameOnlyForm, PickMe } from "@/components/identity-forms";
 
 const SCROLLER = "scroller";
 
@@ -42,11 +42,7 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
                   <br />
                   呼ばれたい名前をひとつ、決めてください。
                 </p>
-                <StartForm
-                  action={joinAction}
-                  label="参加する"
-                  hidden={{ slug }}
-                />
+                <NameOnlyForm action={joinAction} hidden={{ slug }} />
                 <PickMe
                   slug={slug}
                   people={members.map((m) => ({ id: m.user.id, name: m.user.name }))}

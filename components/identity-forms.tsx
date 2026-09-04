@@ -7,16 +7,82 @@ import type { FormState } from "@/app/actions/identity";
 
 type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 
-/** はじめまして。名前をひとつ決めるだけ。 */
+/**
+ * はじめまして。グループを作るところから始める。
+ * 名前だけ決めても行き先が無いので、名前はこの form のひとつとして聞く。
+ */
 export function StartForm({
   action,
-  next,
-  label = "はじめる",
+  suggestion,
+}: {
+  action: Action;
+  suggestion: string;
+}) {
+  const [state, formAction, pending] = useActionState(action, null);
+  const { play } = useSound();
+
+  return (
+    <form action={formAction} className="gate-block">
+      <label className="field">
+        <span className="field-label">グループ名</span>
+        <input
+          name="placeName"
+          className="input"
+          maxLength={32}
+          required
+          autoFocus
+          placeholder="たとえば「三人のところ」"
+        />
+      </label>
+
+      <label className="field">
+        <span className="field-label">あなたの名前</span>
+        <input
+          name="name"
+          className="input"
+          maxLength={24}
+          required
+          autoComplete="nickname"
+          placeholder="呼ばれたい名前"
+        />
+      </label>
+
+      <label className="field">
+        <span className="field-label">このグループの合言葉</span>
+        <input
+          name="passphrase"
+          className="input"
+          maxLength={32}
+          required
+          defaultValue={suggestion}
+          spellCheck={false}
+          autoCapitalize="none"
+        />
+        <span className="field-note">
+          あとから URL を渡すだけでも誘えます。これは、口で伝えたいとき用。
+        </span>
+      </label>
+
+      {state?.error ? <p className="notice">{state.error}</p> : null}
+
+      <button
+        type="submit"
+        className="btn btn-ink gate-wide"
+        disabled={pending}
+        onClick={() => play("ink")}
+      >
+        {pending ? "…" : "はじめる"}
+      </button>
+    </form>
+  );
+}
+
+/** 招待された URL から入るときは、名前だけでいい。 */
+export function NameOnlyForm({
+  action,
   hidden = {},
 }: {
   action: Action;
-  next?: string;
-  label?: string;
   hidden?: Record<string, string>;
 }) {
   const [state, formAction, pending] = useActionState(action, null);
@@ -24,7 +90,6 @@ export function StartForm({
 
   return (
     <form action={formAction} className="gate-block">
-      {next ? <input type="hidden" name="next" value={next} /> : null}
       {Object.entries(hidden).map(([name, value]) => (
         <input key={name} type="hidden" name={name} value={value} />
       ))}
@@ -50,7 +115,7 @@ export function StartForm({
         disabled={pending}
         onClick={() => play("ink")}
       >
-        {pending ? "…" : label}
+        {pending ? "…" : "参加する"}
       </button>
     </form>
   );
@@ -124,7 +189,7 @@ export function PassphraseForm({ action }: { action: Action }) {
   return (
     <form action={formAction} className="gate-block">
       <label className="field">
-        <span className="field-label">合言葉で参加する</span>
+        <span className="field-label">教わった合言葉で参加する</span>
         <input
           name="passphrase"
           className="input"

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { currentUser } from "@/lib/auth";
 import { kanjiDateShort, kanjiNumber } from "@/lib/kanji";
 import { joinByPassphraseAction, startAction } from "@/app/actions/identity";
+import { suggestPassphrase } from "@/lib/ids";
 import { Masthead } from "@/components/masthead";
 import { PaperLink } from "@/components/paper-link";
 import { GateMark } from "@/components/gate-mark";
@@ -30,11 +31,15 @@ export default async function HomePage() {
           <GateMark />
           <div className="gate-form">
             <p className="gate-heading">はじめまして</p>
-            <StartForm action={startAction} />
+            <StartForm action={startAction} suggestion={suggestPassphrase()} />
+
+            <p className="gate-divider">または</p>
+            <PassphraseForm action={joinByPassphraseAction} />
+
             <p className="leaf-lede">
               アカウントはありません。名前は、このブラウザに残るだけです。
               <br />
-              誰かに招待された方は、その URL をひらいてください。
+              誰かに招待された方は、受け取った URL をひらいてください。
             </p>
             {isDev ? <DevSwitcher people={people} /> : null}
           </div>
