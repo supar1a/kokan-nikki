@@ -58,7 +58,7 @@ export function composeBody(before: string, after: string, withPhoto: boolean) {
  * 目次に出す見出し。
  * 題を付けていなければ、本文の一行目を借りる。書き散らしに題を強いないため。
  */
-export function headingOf(slip: { title: string | null; body: string }, max = 18) {
+export function headingOf(slip: { title: string | null; body: string }, max = 44) {
   const named = slip.title?.trim();
   if (named) return named;
 
@@ -68,7 +68,7 @@ export function headingOf(slip: { title: string | null; body: string }, max = 18
     .find(Boolean);
   if (!first) return "（写真だけ）";
 
-  // 題の代わりなので、目次の中で長さが揃うところまで詰める。
+  // 題の代わりなので、読みはじめが分かるところまでは見せる。
   // 一文で切れるならそこで切り、長すぎれば落とす。
   const stop = first.indexOf("。");
   const sentence = stop >= 0 && stop + 1 <= max ? first.slice(0, stop + 1) : first;
